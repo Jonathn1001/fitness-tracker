@@ -1,8 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -10,5 +8,217 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum DayOfWeek {
+  mon
+  tue
+  wed
+  thu
+  fri
+  sat
+  sun
+}
+
+enum WorkoutType {
+  gym
+  kickboxing
+}
+
+enum WarmupType {
+  walk
+  run
+}
+
+enum SessionStatus {
+  in_progress
+  completed
+}
+
+// ─── Auth ────────────────────────────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  refreshTokens    RefreshToken[]
+  workoutTemplates WorkoutTemplate[]
+  sessions         Session[]
+  aiFeedback       AiFeedback[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  token     String
+  expiresAt DateTime @map("expires_at")
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+// ─── Library / Lookup ────────────────────────────────────────────────────────
+
+model ExerciseLibrary {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  muscleGroup String  @map("muscle_group")
+  category    String
+  description String?
+
+  templateExercises TemplateExercise[]
+  sessionSets       SessionSet[]
+
+  @@map("exercise_library")
+}
+
+model RoundTypeLibrary {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  description String?
+
+  sessionRounds  SessionRound[]
+  templateRounds TemplateRound[]
+
+  @@map("round_type_library")
+}
+
+// ─── Templates ───────────────────────────────────────────────────────────────
+
+model WorkoutTemplate {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  name      String
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  templateDays TemplateDay[]
+
+  @@map("workout_templates")
+}
+
+model TemplateDay {
+  id          String      @id @default(uuid())
+  templateId  String      @map("template_id")
+  dayOfWeek   DayOfWeek   @map("day_of_week")
+  workoutType WorkoutType @map("workout_type")
+
+  template          WorkoutTemplate    @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  templateExercises TemplateExercise[]
+  templateRounds    TemplateRound[]
+  sessions          Session[]
+
+  @@unique([templateId, dayOfWeek])
+  @@map("template_days")
+}
+
+model TemplateExercise {
+  id              String @id @default(uuid())
+  templateDayId   String @map("template_day_id")
+  exerciseId      String @map("exercise_id")
+  defaultSets     Int    @map("default_sets")
+  defaultReps     Int    @map("default_reps")
+  defaultWeightKg Float  @default(0) @map("default_weight_kg")
+  order           Int
+
+  templateDay TemplateDay     @relation(fields: [templateDayId], references: [id], onDelete: Cascade)
+  exercise    ExerciseLibrary @relation(fields: [exerciseId], references: [id])
+
+  @@map("template_exercises")
+}
+
+model TemplateRound {
+  id            String @id @default(uuid())
+  templateDayId String @map("template_day_id")
+  roundTypeId   String @map("round_type_id")
+  roundNumber   Int    @map("round_number")
+
+  templateDay TemplateDay      @relation(fields: [templateDayId], references: [id], onDelete: Cascade)
+  roundType   RoundTypeLibrary @relation(fields: [roundTypeId], references: [id])
+
+  @@map("template_rounds")
+}
+
+// ─── Sessions ────────────────────────────────────────────────────────────────
+
+model Session {
+  id                String        @id @default(uuid())
+  userId            String        @map("user_id")
+  templateDayId     String?       @map("template_day_id")
+  date              DateTime      @db.Date
+  warmupType        WarmupType?   @map("warmup_type")
+  warmupDurationMin Int?          @map("warmup_duration_min")
+  notes             String?
+  status            SessionStatus @default(in_progress)
+  completedAt       DateTime?     @map("completed_at")
+  idempotencyKey    String        @unique @map("idempotency_key")
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  templateDay   TemplateDay?   @relation(fields: [templateDayId], references: [id])
+  sessionSets   SessionSet[]
+  sessionRounds SessionRound[]
+
+  @@index([userId, date])
+  @@map("sessions")
+}
+
+model SessionSet {
+  id             String  @id @default(uuid())
+  sessionId      String  @map("session_id")
+  exerciseId     String  @map("exercise_id")
+  setNumber      Int     @map("set_number")
+  reps           Int
+  weightKg       Float   @map("weight_kg")
+  completed      Boolean @default(false)
+  idempotencyKey String  @unique @map("idempotency_key")
+
+  session  Session         @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  exercise ExerciseLibrary @relation(fields: [exerciseId], references: [id])
+
+  @@map("session_sets")
+}
+
+model SessionRound {
+  id             String  @id @default(uuid())
+  sessionId      String  @map("session_id")
+  roundTypeId    String  @map("round_type_id")
+  roundNumber    Int     @map("round_number")
+  completed      Boolean @default(false)
+  qualityRating  Int?    @map("quality_rating")
+  notes          String?
+  idempotencyKey String  @unique @map("idempotency_key")
+
+  session   Session          @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  roundType RoundTypeLibrary @relation(fields: [roundTypeId], references: [id])
+
+  @@map("session_rounds")
+}
+
+// ─── AI Feedback ─────────────────────────────────────────────────────────────
+
+model AiFeedback {
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  content         String
+  periodStart     DateTime @map("period_start") @db.Date
+  periodEnd       DateTime @map("period_end") @db.Date
+  generatedAt     DateTime @default(now()) @map("generated_at")
+  contextSnapshot Json     @map("context_snapshot")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, generatedAt])
+  @@map("ai_feedback")
 }
