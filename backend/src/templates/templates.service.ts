@@ -50,12 +50,15 @@ export class TemplatesService {
       });
     }
 
-    return this.prisma.templateDay.findUnique({
+    const result = await this.prisma.templateDay.findUnique({
       where: { id: dayId },
       include: {
         templateExercises: { include: { exercise: true } },
         templateRounds: { include: { roundType: true } },
       },
     });
+    if (!result) return result;
+    const { templateExercises, templateRounds, ...rest } = result;
+    return { ...rest, exercises: templateExercises, rounds: templateRounds };
   }
 }
