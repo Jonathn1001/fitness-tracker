@@ -9,6 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
+import { TemplateSeederService } from '../templates/template-seeder.service';
 
 @Injectable()
 export class AuthService {
@@ -16,6 +17,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwt: JwtService,
     private config: ConfigService,
+    private seeder: TemplateSeederService,
   ) {}
 
   async signup(dto: SignupDto) {
@@ -27,6 +29,7 @@ export class AuthService {
       data: { email: dto.email, password: hashed, name: dto.name },
     });
 
+    await this.seeder.seedForUser(user.id);
     return this.issueTokens(user.id, user.email);
   }
 
