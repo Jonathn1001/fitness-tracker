@@ -1,7 +1,8 @@
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../generated/prisma/client';
 
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL ?? '' });
+if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
 const exercises = [
@@ -68,5 +69,5 @@ async function main() {
 }
 
 main()
-  .catch(console.error)
+  .catch((e) => { console.error(e); process.exit(1); })
   .finally(() => prisma.$disconnect());
