@@ -56,31 +56,50 @@ A personal PWA for logging gym strength sessions and kickboxing rounds, with AI-
 | Database         | Render PostgreSQL    |
 | CI/CD            | GitHub Actions       |
 
+---
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────┐
+│                   GitHub Actions                     │
+│   CI (PRs): build check both sides                  │
+│   Deploy (main): Render hook + Vercel CLI            │
+└──────────────────┬──────────────────────────────────┘
+                   │
+       ┌───────────┴───────────┐
+       ▼                       ▼
+┌─────────────┐         ┌─────────────┐
+│   Vercel    │         │   Render    │
+│  (React PWA)│◄───────►│  (NestJS)   │
+│             │  HTTPS  │             │
+└─────────────┘         └──────┬──────┘
+                               │ Prisma
+                         ┌─────▼──────┐
+                         │ PostgreSQL  │
+                         │  (Render)   │
+                         └────────────┘
 ```
 
 ### Backend module map
 
 ```
-
 src/
-├── auth/ JWT signup/login/logout/refresh
-├── sessions/ Session lifecycle, sets (gym), rounds (kickboxing)
-├── templates/ Weekly workout plan + exercise library
-├── feedback/ Gemini AI 14-day review generation
-├── prisma/ PrismaService (global)
-└── config/ Env validation, logger config
-
+├── auth/          JWT signup/login/logout/refresh
+├── sessions/      Session lifecycle, sets (gym), rounds (kickboxing)
+├── templates/     Weekly workout plan + exercise library
+├── feedback/      Gemini AI 14-day review generation
+├── prisma/        PrismaService (global)
+└── config/        Env validation, logger config
 ```
 
 ### Data model (key entities)
 
 ```
-
 User → WorkoutTemplate → TemplateDay → TemplateExercise / TemplateRound
 User → Session → SessionSet (gym) / SessionRound (kickboxing)
 User → AiFeedback
-
-````
+```
 
 ---
 
