@@ -1,25 +1,24 @@
-# Fitness Tracker
+# 🏋️ Fitness Tracker
 
 A personal PWA for logging gym strength sessions and kickboxing rounds, with AI-generated training feedback. Built as a mobile-first offline-capable app with a NestJS API backend.
 
 ---
 
-## Features
+## ✨ Features
 
-- **Gym logging** — track sets, reps, and weight per exercise with a stepper UI
-- **Kickboxing logging** — rate each round 1–5 for quality tracking
-- **Weekly plan** — template-driven workout schedule (strength + kickboxing days)
-- **Progress charts** — bench press, back squat, and kickboxing quality trends over time
-- **AI feedback** — Gemini 2.5 Flash generates a 14-day training review (1×/day)
-- **Offline support** — service worker + IndexedDB queue syncs when back online
-- **PWA** — installable on iOS and Android
+- 💪 **Gym logging** — track sets, reps, and weight per exercise with a stepper UI
+- 🥊 **Kickboxing logging** — rate each round 1–5 for quality tracking
+- 📅 **Weekly plan** — template-driven workout schedule (strength + kickboxing days)
+- 📈 **Progress charts** — bench press, back squat, and kickboxing quality trends over time
+- 🤖 **AI feedback** — Gemini 2.5 Flash generates a 14-day training review (1×/day)
+- 📶 **Offline support** — service worker + IndexedDB queue syncs when back online
+- 📱 **PWA** — installable on iOS and Android
 
 ---
 
-## Tech Stack
+## 🛠 Tech Stack
 
 ### Backend
-
 | Layer           | Technology                                          |
 | --------------- | --------------------------------------------------- |
 | Framework       | NestJS 11                                           |
@@ -34,7 +33,6 @@ A personal PWA for logging gym strength sessions and kickboxing rounds, with AI-
 | Package manager | pnpm 10                                             |
 
 ### Frontend
-
 | Layer           | Technology                                      |
 | --------------- | ----------------------------------------------- |
 | Framework       | React 19                                        |
@@ -48,7 +46,6 @@ A personal PWA for logging gym strength sessions and kickboxing rounds, with AI-
 | Package manager | pnpm 10                                         |
 
 ### Infrastructure
-
 | Concern          | Service              |
 | ---------------- | -------------------- |
 | Backend hosting  | Render (Web Service) |
@@ -58,7 +55,7 @@ A personal PWA for logging gym strength sessions and kickboxing rounds, with AI-
 
 ---
 
-## Architecture
+## 🏗 Architecture
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -81,7 +78,7 @@ A personal PWA for logging gym strength sessions and kickboxing rounds, with AI-
                          └────────────┘
 ```
 
-### Backend module map
+### 🗂 Backend module map
 
 ```
 src/
@@ -93,7 +90,7 @@ src/
 └── config/        Env validation, logger config
 ```
 
-### Data model (key entities)
+### 🗃 Data model (key entities)
 
 ```
 User → WorkoutTemplate → TemplateDay → TemplateExercise / TemplateRound
@@ -103,7 +100,7 @@ User → AiFeedback
 
 ---
 
-## Requirements
+## 📋 Requirements
 
 - Node.js 22+
 - pnpm 10+
@@ -112,7 +109,7 @@ User → AiFeedback
 
 ---
 
-## Running Locally
+## 🚀 Running Locally
 
 ### 1. Start the database
 
@@ -120,7 +117,7 @@ User → AiFeedback
 # from repo root
 cp docker-compose.example.yml docker-compose.yml
 docker compose up -d
-````
+```
 
 ### 2. Backend
 
@@ -164,7 +161,7 @@ VITE_API_URL=http://localhost:3000
 
 ---
 
-## API Routes
+## 🔌 API Routes
 
 | Method | Path                     | Description                   |
 | ------ | ------------------------ | ----------------------------- |
@@ -186,7 +183,7 @@ VITE_API_URL=http://localhost:3000
 
 ---
 
-## Deployment
+## ☁️ Deployment
 
 ### Prerequisites
 
@@ -194,7 +191,7 @@ VITE_API_URL=http://localhost:3000
 2. A Vercel project linked to this repo (`cd frontend && vercel link`)
 3. GitHub secrets configured (see below)
 
-### GitHub Secrets
+### 🔑 GitHub Secrets
 
 **Render (backend):**
 | Secret | Where to get it |
@@ -209,7 +206,7 @@ VITE_API_URL=http://localhost:3000
 | `VERCEL_PROJECT_ID` | Same file |
 | `VITE_API_URL` | Your Render backend URL |
 
-### Render Settings
+### ⚙️ Render Settings
 
 **Build command:**
 
@@ -234,14 +231,14 @@ GEMINI_API_KEY=
 FRONTEND_URL=https://your-app.vercel.app
 ```
 
-### Deploy flow
+### 🔄 Deploy flow
 
 - **Every PR** → GitHub Actions runs build checks on both backend and frontend
 - **Merge to `main`** → backend triggers Render deploy hook; frontend deploys via Vercel CLI
 
 ---
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 fitness-tracker/
