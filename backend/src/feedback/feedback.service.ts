@@ -1,4 +1,5 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Prisma } from '../../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service';
 import { GeminiService } from './gemini.service';
 
@@ -14,17 +15,6 @@ export class FeedbackService {
     todayStart.setHours(0, 0, 0, 0);
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 59, 999);
-
-    const existingToday = await this.prisma.aiFeedback.findFirst({
-      where: { userId, generatedAt: { gte: todayStart, lte: todayEnd } },
-    });
-
-    if (existingToday) {
-      throw new HttpException(
-        { message: 'Rate limit: 1 feedback per day', retry_after: todayEnd.toISOString() },
-        HttpStatus.TOO_MANY_REQUESTS,
-      );
-    }
 
     const periodEnd = new Date();
     const periodStart = new Date();
@@ -66,9 +56,19 @@ export class FeedbackService {
 
     const content = await this.gemini.generateFeedback(contextSnapshot);
 
-    return this.prisma.aiFeedback.create({
-      data: { userId, content, periodStart, periodEnd, contextSnapshot },
-    });
+    try {
+      return await this.prisma.aiFeedback.create({
+        data: { userId, content, periodStart, periodEnd, contextSnapshot },
+      });
+    } catch (err) {
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+        throw new HttpException(
+          { message: 'Rate limit: 1 feedback per day', retry_after: todayEnd.toISOString() },
+          HttpStatus.TOO_MANY_REQUESTS,
+        );
+      }
+      throw err;
+    }
   }
 
   async findAll(userId: string, page = 1, limit = 10) {

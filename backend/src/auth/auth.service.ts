@@ -1,6 +1,7 @@
 import {
   Injectable,
   ConflictException,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -13,6 +14,8 @@ import { TemplateSeederService } from '../templates/template-seeder.service';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
@@ -44,7 +47,9 @@ export class AuthService {
   }
 
   async refresh(rawRefreshToken: string) {
-    let payload: { sub: string; email: string };
+    if (!rawRefreshToken) throw new UnauthorizedException('Missing refresh token');
+
+    let payload: { sub: string; email: string; jti?: string };
     try {
       payload = this.jwt.verify(rawRefreshToken, {
         secret: this.config.get('JWT_REFRESH_SECRET'),
@@ -53,12 +58,29 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    const stored = await this.prisma.refreshToken.findFirst({
-      where: { userId: payload.sub, revoked: false, expiresAt: { gt: new Date() } },
-      orderBy: { createdAt: 'desc' },
-    });
+    if (!payload.jti) throw new UnauthorizedException('Invalid refresh token');
 
-    if (!stored) throw new UnauthorizedException('Refresh token not found or expired');
+    const stored = await this.prisma.refreshToken.findUnique({ where: { id: payload.jti } });
+
+    if (!stored || stored.userId !== payload.sub) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    if (stored.revoked) {
+      // Reuse of a revoked token — likely stolen. Revoke the whole family.
+      this.logger.warn(
+        `Refresh token reuse detected for user ${payload.sub} (token ${stored.id}). Revoking family.`,
+      );
+      await this.prisma.refreshToken.updateMany({
+        where: { userId: payload.sub, revoked: false },
+        data: { revoked: true },
+      });
+      throw new UnauthorizedException('Refresh token reuse detected');
+    }
+
+    if (stored.expiresAt.getTime() <= Date.now()) {
+      throw new UnauthorizedException('Refresh token expired');
+    }
 
     const matches = await bcrypt.compare(rawRefreshToken, stored.token);
     if (!matches) throw new UnauthorizedException('Invalid refresh token');
@@ -75,27 +97,27 @@ export class AuthService {
   }
 
   private async issueTokens(userId: string, email: string) {
-    const payload = { sub: userId, email };
-
-    const accessToken = this.jwt.sign(payload, {
-      expiresIn: '15m',
-      secret: this.config.get('JWT_SECRET'),
-    });
-
-    const rawRefresh = this.jwt.sign(payload, {
-      expiresIn: '7d',
-      secret: this.config.get('JWT_REFRESH_SECRET'),
-    });
+    const accessToken = this.jwt.sign(
+      { sub: userId, email },
+      { expiresIn: '15m', secret: this.config.get('JWT_SECRET') },
+    );
 
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
 
-    await this.prisma.refreshToken.create({
-      data: {
-        userId,
-        token: await bcrypt.hash(rawRefresh, 10),
-        expiresAt,
-      },
+    // Pre-create the row so its id can be embedded in the JWT as jti.
+    const row = await this.prisma.refreshToken.create({
+      data: { userId, token: '', expiresAt },
+    });
+
+    const rawRefresh = this.jwt.sign(
+      { sub: userId, email, jti: row.id },
+      { expiresIn: '7d', secret: this.config.get('JWT_REFRESH_SECRET') },
+    );
+
+    await this.prisma.refreshToken.update({
+      where: { id: row.id },
+      data: { token: await bcrypt.hash(rawRefresh, 10) },
     });
 
     return { accessToken, refreshToken: rawRefresh };

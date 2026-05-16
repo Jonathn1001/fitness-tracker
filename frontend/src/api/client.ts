@@ -1,10 +1,20 @@
 import axios from 'axios'
 import { useAuthStore } from '../store/auth'
 
+export const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+
 export const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000',
+  baseURL: BASE_URL,
   withCredentials: true,
 })
+
+let onUnauthorized: () => void = () => {
+  window.location.href = '/login'
+}
+
+export function setUnauthorizedHandler(handler: () => void) {
+  onUnauthorized = handler
+}
 
 apiClient.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken
@@ -12,8 +22,13 @@ apiClient.interceptors.request.use((config) => {
   return config
 })
 
+interface Waiter {
+  resolve: (token: string) => void
+  reject: (err: unknown) => void
+}
+
 let isRefreshing = false
-let queue: Array<(token: string) => void> = []
+let waiters: Waiter[] = []
 
 apiClient.interceptors.response.use(
   (res) => res,
@@ -25,10 +40,13 @@ apiClient.interceptors.response.use(
     original._retry = true
 
     if (isRefreshing) {
-      return new Promise((resolve) => {
-        queue.push((token) => {
-          original.headers.Authorization = `Bearer ${token}`
-          resolve(apiClient(original))
+      return new Promise((resolve, reject) => {
+        waiters.push({
+          resolve: (token) => {
+            original.headers.Authorization = `Bearer ${token}`
+            resolve(apiClient(original))
+          },
+          reject,
         })
       })
     }
@@ -36,18 +54,22 @@ apiClient.interceptors.response.use(
     isRefreshing = true
     try {
       const { data } = await axios.post(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/auth/refresh`,
+        `${BASE_URL}/auth/refresh`,
         {},
         { withCredentials: true },
       )
       useAuthStore.getState().setToken(data.accessToken)
-      queue.forEach((cb) => cb(data.accessToken))
-      queue = []
+      const drained = waiters
+      waiters = []
+      drained.forEach((w) => w.resolve(data.accessToken))
       original.headers.Authorization = `Bearer ${data.accessToken}`
       return apiClient(original)
-    } catch {
+    } catch (refreshError) {
+      const drained = waiters
+      waiters = []
+      drained.forEach((w) => w.reject(refreshError))
       useAuthStore.getState().clearToken()
-      window.location.href = '/login'
+      onUnauthorized()
       return Promise.reject(error)
     } finally {
       isRefreshing = false

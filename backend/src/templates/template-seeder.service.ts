@@ -1,13 +1,16 @@
 import { Injectable } from '@nestjs/common';
+import { DayOfWeek } from '../../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service';
 
-const GYM_DAYS: Array<{ day: string; category: string }> = [
-  { day: 'mon', category: 'upper' },
-  { day: 'tue', category: 'lower' },
-  { day: 'wed', category: 'arms' },
-  { day: 'thu', category: 'chest' },
-  { day: 'fri', category: 'shoulder-back' },
+const GYM_DAYS: Array<{ day: DayOfWeek; category: string }> = [
+  { day: DayOfWeek.mon, category: 'upper' },
+  { day: DayOfWeek.tue, category: 'lower' },
+  { day: DayOfWeek.wed, category: 'arms' },
+  { day: DayOfWeek.thu, category: 'chest' },
+  { day: DayOfWeek.fri, category: 'shoulder-back' },
 ];
+
+const KICKBOX_DAYS: DayOfWeek[] = [DayOfWeek.sat, DayOfWeek.sun];
 
 const KICKBOXING_ROUNDS = [
   { name: 'boxing', count: 3 },
@@ -27,10 +30,16 @@ export class TemplateSeederService {
     });
 
     for (const { day, category } of GYM_DAYS) {
-      const exercises = await this.prisma.exerciseLibrary.findMany({ where: { category } });
+      const exercises = await this.prisma.exerciseLibrary.findMany({
+        where: { category },
+      });
 
       const templateDay = await this.prisma.templateDay.create({
-        data: { templateId: template.id, dayOfWeek: day as any, workoutType: 'gym' },
+        data: {
+          templateId: template.id,
+          dayOfWeek: day,
+          workoutType: 'gym',
+        },
       });
 
       await this.prisma.templateExercise.createMany({
@@ -46,15 +55,25 @@ export class TemplateSeederService {
     }
 
     const roundTypes = await this.prisma.roundTypeLibrary.findMany();
-    const roundTypeMap = Object.fromEntries(roundTypes.map((r) => [r.name, r.id]));
+    const roundTypeMap = Object.fromEntries(
+      roundTypes.map((r) => [r.name, r.id]),
+    );
 
-    for (const kbDay of ['sat', 'sun']) {
+    for (const kbDay of KICKBOX_DAYS) {
       const templateDay = await this.prisma.templateDay.create({
-        data: { templateId: template.id, dayOfWeek: kbDay as any, workoutType: 'kickboxing' },
+        data: {
+          templateId: template.id,
+          dayOfWeek: kbDay,
+          workoutType: 'kickboxing',
+        },
       });
 
       let roundNumber = 1;
-      const roundData: Array<{ templateDayId: string; roundTypeId: string; roundNumber: number }> = [];
+      const roundData: Array<{
+        templateDayId: string;
+        roundTypeId: string;
+        roundNumber: number;
+      }> = [];
       for (const { name, count } of KICKBOXING_ROUNDS) {
         for (let i = 0; i < count; i++) {
           roundData.push({

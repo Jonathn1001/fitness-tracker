@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { isAxiosError } from 'axios'
 import { useNavigate, Link } from 'react-router-dom'
 import { signup } from '../api/auth'
 import { useAuthStore } from '../store/auth'
@@ -8,49 +9,70 @@ export function SignupPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
   const setToken = useAuthStore((s) => s.setToken)
   const navigate = useNavigate()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setLoading(true)
     try {
       const { data } = await signup({ name, email, password })
       setToken(data.accessToken)
       navigate('/')
-    } catch (err: any) {
-      setError(err.response?.data?.message ?? 'Signup failed')
+    } catch (err) {
+      const message = isAxiosError(err)
+        ? (err.response?.data as { message?: string } | undefined)?.message
+        : undefined
+      setError(message ?? 'Signup failed')
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-950 px-4">
-      <div className="w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-white mb-6 text-center">Create Account</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input type="text" placeholder="Your name" value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full bg-gray-800 text-white rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-          <input type="email" placeholder="Email" value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full bg-gray-800 text-white rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-          <input type="password" placeholder="Password (min 8 chars)" value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full bg-gray-800 text-white rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            minLength={8} required
-          />
-          {error && <p className="text-red-400 text-sm">{error}</p>}
-          <button type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg px-4 py-3 text-sm">
-            Sign Up
+    <div className="auth-shell">
+      <div className="auth-card card">
+        <div className="brand" style={{ marginBottom: 22, padding: 0 }}>
+          <div className="brand-mark">C</div>
+          <div>
+            <div className="brand-name">Coach</div>
+            <div className="brand-sub">Fitness OS</div>
+          </div>
+        </div>
+        <h1>Create account</h1>
+        <p className="dim">Start tracking sessions in under a minute.</p>
+
+        <form onSubmit={handleSubmit}>
+          <div className="field">
+            <label htmlFor="name">Name</label>
+            <input id="name" type="text" value={name} onChange={(e) => setName(e.target.value)} required />
+          </div>
+          <div className="field">
+            <label htmlFor="email">Email</label>
+            <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
+          </div>
+          <div className="field">
+            <label htmlFor="password">Password</label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              minLength={8}
+              required
+              autoComplete="new-password"
+            />
+          </div>
+          {error && <p className="error">{error}</p>}
+          <button type="submit" className="btn primary full" disabled={loading}>
+            {loading ? <><span className="spinner" /> Creating…</> : 'Create account'}
           </button>
         </form>
-        <p className="text-gray-400 text-sm text-center mt-4">
-          Already have an account? <Link to="/login" className="text-blue-400">Log in</Link>
+
+        <p className="dim" style={{ fontSize: 12.5, textAlign: 'center', marginTop: 16 }}>
+          Already have one? <Link to="/login" style={{ color: 'var(--ink)', fontWeight: 700 }}>Sign in</Link>
         </p>
       </div>
     </div>

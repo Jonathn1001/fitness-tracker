@@ -114,6 +114,7 @@ model TemplateDay {
   templateId  String      @map("template_id")
   dayOfWeek   DayOfWeek   @map("day_of_week")
   workoutType WorkoutType @map("workout_type")
+  version     Int         @default(0)
 
   template          WorkoutTemplate    @relation(fields: [templateId], references: [id], onDelete: Cascade)
   templateExercises TemplateExercise[]
@@ -171,6 +172,7 @@ model Session {
   sessionRounds SessionRound[]
 
   @@index([userId, date])
+  @@index([userId, status])
   @@map("sessions")
 }
 
@@ -215,10 +217,12 @@ model AiFeedback {
   periodStart     DateTime @map("period_start") @db.Date
   periodEnd       DateTime @map("period_end") @db.Date
   generatedAt     DateTime @default(now()) @map("generated_at")
+  generatedDate   DateTime @default(dbgenerated("CURRENT_DATE")) @map("generated_date") @db.Date
   contextSnapshot Json     @map("context_snapshot")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@unique([userId, generatedDate])
   @@index([userId, generatedAt])
   @@map("ai_feedback")
 }

@@ -1,6 +1,15 @@
 import {
-  Controller, Get, Post, Patch, Put, Delete,
-  Body, Param, Query, UseGuards, HttpCode,
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Put,
+  Delete,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  HttpCode,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -11,6 +20,9 @@ import { CreateSessionDto } from './dto/create-session.dto';
 import { UpdateSessionDto } from './dto/update-session.dto';
 import { UpsertSetDto } from './dto/upsert-set.dto';
 import { UpsertRoundDto } from './dto/upsert-round.dto';
+import { FindSessionsDto } from './dto/find-sessions.dto';
+import { UpdateSetDto } from './dto/update-set.dto';
+import { UpdateRoundDto } from './dto/update-round.dto';
 
 @Controller('sessions')
 @UseGuards(JwtAuthGuard)
@@ -27,7 +39,7 @@ export class SessionsController {
   }
 
   @Get()
-  findAll(@CurrentUser() u: { id: string }, @Query() query: any) {
+  findAll(@CurrentUser() u: { id: string }, @Query() query: FindSessionsDto) {
     return this.sessionsService.findAll(u.id, query);
   }
 
@@ -71,7 +83,7 @@ export class SessionsController {
     @CurrentUser() u: { id: string },
     @Param('id') id: string,
     @Param('setId') setId: string,
-    @Body() data: any,
+    @Body() data: UpdateSetDto,
   ) {
     return this.setsService.updateSet(u.id, id, setId, data);
   }
@@ -90,7 +102,7 @@ export class SessionsController {
     @CurrentUser() u: { id: string },
     @Param('id') id: string,
     @Param('roundId') roundId: string,
-    @Body() data: any,
+    @Body() data: UpdateRoundDto,
   ) {
     return this.roundsService.updateRound(u.id, id, roundId, data);
   }

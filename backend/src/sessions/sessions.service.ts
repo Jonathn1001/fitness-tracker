@@ -1,9 +1,13 @@
 import {
-  Injectable, NotFoundException, ForbiddenException, ConflictException, BadRequestException,
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSessionDto } from './dto/create-session.dto';
 import { UpdateSessionDto } from './dto/update-session.dto';
+import { FindSessionsDto } from './dto/find-sessions.dto';
 
 @Injectable()
 export class SessionsService {
@@ -16,9 +20,13 @@ export class SessionsService {
     if (existing) return existing;
 
     if (dto.templateDayId && (dto.warmupType || dto.warmupDurationMin)) {
-      const day = await this.prisma.templateDay.findUnique({ where: { id: dto.templateDayId } });
+      const day = await this.prisma.templateDay.findUnique({
+        where: { id: dto.templateDayId },
+      });
       if (day?.workoutType === 'kickboxing') {
-        throw new BadRequestException('Warmup fields are not valid for kickboxing sessions');
+        throw new BadRequestException(
+          'Warmup fields are not valid for kickboxing sessions',
+        );
       }
     }
 
@@ -35,27 +43,35 @@ export class SessionsService {
     });
   }
 
-  async findAll(userId: string, query: { from?: string; to?: string; status?: string; page?: number; limit?: number }) {
-    const from = query.from ? new Date(query.from) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  async findAll(userId: string, query: FindSessionsDto) {
+    const from = query.from
+      ? new Date(query.from)
+      : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const to = query.to ? new Date(query.to) : new Date();
-    const page = Number(query.page) || 1;
-    const limit = Number(query.limit) || 20;
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 20;
+
+    const where = {
+      userId,
+      date: { gte: from, lte: to },
+      ...(query.status ? { status: query.status } : {}),
+    };
 
     const [data, total] = await this.prisma.$transaction([
       this.prisma.session.findMany({
-        where: {
-          userId,
-          date: { gte: from, lte: to },
-          ...(query.status ? { status: query.status as any } : {}),
+        where,
+        select: {
+          id: true,
+          date: true,
+          status: true,
+          completedAt: true,
+          templateDayId: true,
         },
-        select: { id: true, date: true, status: true, completedAt: true, templateDayId: true },
         orderBy: { date: 'desc' },
         skip: (page - 1) * limit,
         take: limit,
       }),
-      this.prisma.session.count({
-        where: { userId, date: { gte: from, lte: to } },
-      }),
+      this.prisma.session.count({ where }),
     ]);
 
     return { data, total, page, limit };
@@ -69,8 +85,7 @@ export class SessionsService {
         sessionRounds: { include: { roundType: true } },
       },
     });
-    if (!session) throw new NotFoundException();
-    if (session.userId !== userId) throw new ForbiddenException();
+    if (!session || session.userId !== userId) throw new NotFoundException();
     return session;
   }
 
@@ -97,8 +112,7 @@ export class SessionsService {
 
   private async assertOwnership(userId: string, id: string) {
     const session = await this.prisma.session.findUnique({ where: { id } });
-    if (!session) throw new NotFoundException();
-    if (session.userId !== userId) throw new ForbiddenException();
+    if (!session || session.userId !== userId) throw new NotFoundException();
     return session;
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpsertSetDto } from './dto/upsert-set.dto';
 
@@ -8,15 +8,13 @@ export class SetsService {
 
   async upsertSets(userId: string, sessionId: string, dtos: UpsertSetDto[]) {
     await this.assertOwnership(userId, sessionId);
-    const results: Record<string, any>[] = [];
-    for (const dto of dtos) {
-      const existing = await this.prisma.sessionSet.findUnique({
-        where: { idempotencyKey: dto.idempotencyKey },
-      });
-      if (existing) { results.push(existing); continue; }
+    if (!dtos.length) return [];
 
-      const created = await this.prisma.sessionSet.create({
-        data: {
+    const keys = dtos.map((d) => d.idempotencyKey);
+
+    return this.prisma.$transaction(async (tx) => {
+      await tx.sessionSet.createMany({
+        data: dtos.map((dto) => ({
           sessionId,
           exerciseId: dto.exerciseId,
           setNumber: dto.setNumber,
@@ -24,11 +22,13 @@ export class SetsService {
           weightKg: dto.weightKg,
           completed: dto.completed,
           idempotencyKey: dto.idempotencyKey,
-        },
+        })),
+        skipDuplicates: true,
       });
-      results.push(created);
-    }
-    return results;
+      return tx.sessionSet.findMany({
+        where: { idempotencyKey: { in: keys } },
+      });
+    });
   }
 
   async updateSet(
@@ -38,12 +38,18 @@ export class SetsService {
     data: Partial<{ reps: number; weightKg: number; completed: boolean }>,
   ) {
     await this.assertOwnership(userId, sessionId);
-    return this.prisma.sessionSet.update({ where: { id: setId }, data });
+    const result = await this.prisma.sessionSet.updateMany({
+      where: { id: setId, sessionId },
+      data,
+    });
+    if (result.count === 0) throw new NotFoundException();
+    return this.prisma.sessionSet.findUnique({ where: { id: setId } });
   }
 
   private async assertOwnership(userId: string, sessionId: string) {
-    const session = await this.prisma.session.findUnique({ where: { id: sessionId } });
-    if (!session) throw new NotFoundException();
-    if (session.userId !== userId) throw new ForbiddenException();
+    const session = await this.prisma.session.findUnique({
+      where: { id: sessionId },
+    });
+    if (!session || session.userId !== userId) throw new NotFoundException();
   }
 }

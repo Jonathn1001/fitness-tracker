@@ -1,5 +1,4 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
 
 interface AuthStore {
   accessToken: string | null
@@ -7,13 +6,10 @@ interface AuthStore {
   clearToken: () => void
 }
 
-export const useAuthStore = create<AuthStore>()(
-  persist(
-    (set) => ({
-      accessToken: null,
-      setToken: (token) => set({ accessToken: token }),
-      clearToken: () => set({ accessToken: null }),
-    }),
-    { name: 'auth-storage' },
-  ),
-)
+// Access token is kept in memory only. On page reload the refresh-token
+// HTTP-only cookie is used to re-issue an access token via /auth/refresh.
+export const useAuthStore = create<AuthStore>()((set) => ({
+  accessToken: null,
+  setToken: (token) => set({ accessToken: token }),
+  clearToken: () => set({ accessToken: null }),
+}))

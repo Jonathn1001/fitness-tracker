@@ -7,46 +7,69 @@ export function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
   const setToken = useAuthStore((s) => s.setToken)
   const navigate = useNavigate()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setLoading(true)
     try {
       const { data } = await login({ email, password })
       setToken(data.accessToken)
       navigate('/')
     } catch {
       setError('Invalid email or password')
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-950 px-4">
-      <div className="w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-white mb-6 text-center">FitTrack</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="email" placeholder="Email" value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full bg-gray-800 text-white rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-          <input
-            type="password" placeholder="Password" value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full bg-gray-800 text-white rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-          {error && <p className="text-red-400 text-sm">{error}</p>}
-          <button type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg px-4 py-3 text-sm">
-            Log In
+    <div className="auth-shell">
+      <div className="auth-card card">
+        <div className="brand" style={{ marginBottom: 22, padding: 0 }}>
+          <div className="brand-mark">C</div>
+          <div>
+            <div className="brand-name">Coach</div>
+            <div className="brand-sub">Fitness OS</div>
+          </div>
+        </div>
+        <h1>Welcome back</h1>
+        <p className="dim">Sign in to track today's session.</p>
+
+        <form onSubmit={handleSubmit}>
+          <div className="field">
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="email"
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="password">Password</label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              autoComplete="current-password"
+            />
+          </div>
+          {error && <p className="error">{error}</p>}
+          <button type="submit" className="btn primary full" disabled={loading}>
+            {loading ? <><span className="spinner" /> Signing in…</> : 'Sign in'}
           </button>
         </form>
-        <p className="text-gray-400 text-sm text-center mt-4">
-          No account? <Link to="/signup" className="text-blue-400">Sign up</Link>
+
+        <p className="dim" style={{ fontSize: 12.5, textAlign: 'center', marginTop: 16 }}>
+          No account? <Link to="/signup" style={{ color: 'var(--ink)', fontWeight: 700 }}>Create one</Link>
         </p>
       </div>
     </div>

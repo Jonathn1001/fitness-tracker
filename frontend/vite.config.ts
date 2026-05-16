@@ -1,21 +1,19 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
   plugins: [
     react(),
-    tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
-        name: 'Fitness Tracker',
-        short_name: 'FitTrack',
+        name: 'Coach — Fitness OS',
+        short_name: 'Coach',
         description: 'Track your weekly training and get AI coaching feedback',
-        theme_color: '#111827',
-        background_color: '#111827',
+        theme_color: '#C8FF3E',
+        background_color: '#f5f5f0',
         display: 'standalone',
         icons: [
           { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },

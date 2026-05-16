@@ -1,4 +1,4 @@
-import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpsertRoundDto } from './dto/upsert-round.dto';
 
@@ -6,17 +6,19 @@ import { UpsertRoundDto } from './dto/upsert-round.dto';
 export class RoundsService {
   constructor(private prisma: PrismaService) {}
 
-  async upsertRounds(userId: string, sessionId: string, dtos: UpsertRoundDto[]) {
+  async upsertRounds(
+    userId: string,
+    sessionId: string,
+    dtos: UpsertRoundDto[],
+  ) {
     await this.assertOwnership(userId, sessionId);
-    const results: Record<string, any>[] = [];
-    for (const dto of dtos) {
-      const existing = await this.prisma.sessionRound.findUnique({
-        where: { idempotencyKey: dto.idempotencyKey },
-      });
-      if (existing) { results.push(existing); continue; }
+    if (!dtos.length) return [];
 
-      const created = await this.prisma.sessionRound.create({
-        data: {
+    const keys = dtos.map((d) => d.idempotencyKey);
+
+    return this.prisma.$transaction(async (tx) => {
+      await tx.sessionRound.createMany({
+        data: dtos.map((dto) => ({
           sessionId,
           roundTypeId: dto.roundTypeId,
           roundNumber: dto.roundNumber,
@@ -24,11 +26,13 @@ export class RoundsService {
           qualityRating: dto.qualityRating ?? null,
           notes: dto.notes ?? null,
           idempotencyKey: dto.idempotencyKey,
-        },
+        })),
+        skipDuplicates: true,
       });
-      results.push(created);
-    }
-    return results;
+      return tx.sessionRound.findMany({
+        where: { idempotencyKey: { in: keys } },
+      });
+    });
   }
 
   async updateRound(
@@ -38,12 +42,18 @@ export class RoundsService {
     data: Partial<{ completed: boolean; qualityRating: number; notes: string }>,
   ) {
     await this.assertOwnership(userId, sessionId);
-    return this.prisma.sessionRound.update({ where: { id: roundId }, data });
+    const result = await this.prisma.sessionRound.updateMany({
+      where: { id: roundId, sessionId },
+      data,
+    });
+    if (result.count === 0) throw new NotFoundException();
+    return this.prisma.sessionRound.findUnique({ where: { id: roundId } });
   }
 
   private async assertOwnership(userId: string, sessionId: string) {
-    const session = await this.prisma.session.findUnique({ where: { id: sessionId } });
-    if (!session) throw new NotFoundException();
-    if (session.userId !== userId) throw new ForbiddenException();
+    const session = await this.prisma.session.findUnique({
+      where: { id: sessionId },
+    });
+    if (!session || session.userId !== userId) throw new NotFoundException();
   }
 }

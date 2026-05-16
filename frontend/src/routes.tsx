@@ -1,31 +1,66 @@
-import { Layout } from './components/Layout'
-import { ProtectedRoute } from './components/ProtectedRoute'
-import { LoginPage } from './pages/LoginPage'
-import { SignupPage } from './pages/SignupPage'
-import { DashboardPage } from './pages/DashboardPage'
-import { SessionPage } from './pages/SessionPage'
-import { HistoryPage } from './pages/HistoryPage'
-import { ProgressPage } from './pages/ProgressPage'
-import { FeedbackPage } from './pages/FeedbackPage'
-import { ProfilePage } from './pages/ProfilePage'
+import { lazy, Suspense, useEffect } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
+import { Layout } from "./components/Layout";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import { LoginPage } from "./pages/LoginPage";
+import { SignupPage } from "./pages/SignupPage";
+import { DashboardPage } from "./pages/DashboardPage";
+import { setUnauthorizedHandler } from "./api/client";
+
+function RootShell() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    setUnauthorizedHandler(() => navigate("/login", { replace: true }));
+  }, [navigate]);
+  return <Outlet />;
+}
+
+const SessionPage = lazy(() =>
+  import("./pages/SessionPage").then((m) => ({ default: m.SessionPage })),
+);
+const HistoryPage = lazy(() =>
+  import("./pages/HistoryPage").then((m) => ({ default: m.HistoryPage })),
+);
+const ProgressPage = lazy(() =>
+  import("./pages/ProgressPage").then((m) => ({ default: m.ProgressPage })),
+);
+const FeedbackPage = lazy(() =>
+  import("./pages/FeedbackPage").then((m) => ({ default: m.FeedbackPage })),
+);
+const ProfilePage = lazy(() =>
+  import("./pages/ProfilePage").then((m) => ({ default: m.ProfilePage })),
+);
+
+const PageFallback = () => (
+  <div className="p-6 text-gray-400 text-sm">Loading…</div>
+);
+
+const lazyRoute = (element: React.ReactNode) => (
+  <Suspense fallback={<PageFallback />}>{element}</Suspense>
+);
 
 export const routes = [
-  { path: '/login', element: <LoginPage /> },
-  { path: '/signup', element: <SignupPage /> },
   {
-    element: <ProtectedRoute />,
+    element: <RootShell />,
     children: [
+      { path: "/login", element: <LoginPage /> },
+      { path: "/signup", element: <SignupPage /> },
       {
-        element: <Layout />,
+        element: <ProtectedRoute />,
         children: [
-          { path: '/', element: <DashboardPage /> },
-          { path: '/session/:id', element: <SessionPage /> },
-          { path: '/history', element: <HistoryPage /> },
-          { path: '/progress', element: <ProgressPage /> },
-          { path: '/feedback', element: <FeedbackPage /> },
-          { path: '/profile', element: <ProfilePage /> },
+          {
+            element: <Layout />,
+            children: [
+              { path: "/", element: <DashboardPage /> },
+              { path: "/session/:id", element: lazyRoute(<SessionPage />) },
+              { path: "/history", element: lazyRoute(<HistoryPage />) },
+              { path: "/progress", element: lazyRoute(<ProgressPage />) },
+              { path: "/feedback", element: lazyRoute(<FeedbackPage />) },
+              { path: "/profile", element: lazyRoute(<ProfilePage />) },
+            ],
+          },
         ],
       },
     ],
   },
-]
+];

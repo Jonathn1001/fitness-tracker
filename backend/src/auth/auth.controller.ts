@@ -1,4 +1,5 @@
 import { Controller, Post, Body, Res, Req, HttpCode, UseGuards } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import type { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signup.dto';
@@ -10,6 +11,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @Post('signup')
   async signup(@Body() dto: SignupDto, @Res({ passthrough: true }) res: Response) {
     const { accessToken, refreshToken } = await this.authService.signup(dto);
@@ -17,6 +19,7 @@ export class AuthController {
     return { accessToken };
   }
 
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @Post('login')
   @HttpCode(200)
   async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
@@ -25,6 +28,7 @@ export class AuthController {
     return { accessToken };
   }
 
+  @Throttle({ default: { limit: 20, ttl: 60_000 } })
   @Post('refresh')
   @HttpCode(200)
   async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
@@ -39,7 +43,7 @@ export class AuthController {
   @HttpCode(200)
   async logout(@CurrentUser() user: { id: string }, @Res({ passthrough: true }) res: Response) {
     await this.authService.logout(user.id);
-    res.clearCookie('refresh_token');
+    res.clearCookie('refresh_token', { path: '/auth' });
     return { message: 'Logged out' };
   }
 
@@ -48,6 +52,7 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
+      path: '/auth',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
   }

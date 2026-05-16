@@ -28,7 +28,11 @@ const exercises = [
   { name: 'Dips', muscleGroup: 'Chest/Triceps', category: 'chest' },
   { name: 'Pec Deck', muscleGroup: 'Chest', category: 'chest' },
   // Shoulder-Back
-  { name: 'Lateral Raise', muscleGroup: 'Shoulders', category: 'shoulder-back' },
+  {
+    name: 'Lateral Raise',
+    muscleGroup: 'Shoulders',
+    category: 'shoulder-back',
+  },
   { name: 'Face Pull', muscleGroup: 'Rear Delts', category: 'shoulder-back' },
   { name: 'Deadlift', muscleGroup: 'Back', category: 'shoulder-back' },
   { name: 'Shrug', muscleGroup: 'Traps', category: 'shoulder-back' },
@@ -69,5 +73,8 @@ async function main() {
 }
 
 main()
-  .catch((e) => { console.error(e); process.exit(1); })
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
   .finally(() => prisma.$disconnect());

@@ -15,7 +15,7 @@ const queryClient = new QueryClient({
 
 const router = createBrowserRouter(routes)
 
-window.addEventListener('online', () => {
+const drainQueue = () => {
   replayQueue(async (entry) => {
     await apiClient.request({
       method: entry.method,
@@ -23,7 +23,10 @@ window.addEventListener('online', () => {
       data: entry.body,
     })
   })
-})
+}
+
+window.addEventListener('online', drainQueue)
+if (navigator.onLine) drainQueue()
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
