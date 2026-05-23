@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DayOfWeek } from '../../generated/prisma/client.js';
+import { DayOfWeek } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service';
 
 const GYM_DAYS: Array<{ day: DayOfWeek; category: string }> = [

@@ -8,7 +8,7 @@ node_modules/
 !.env.example
 
 # Prisma generated client
-/generated/prisma
+/src/generated/prisma
 
 # Logs
 logs

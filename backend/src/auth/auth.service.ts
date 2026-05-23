@@ -24,7 +24,9 @@ export class AuthService {
   ) {}
 
   async signup(dto: SignupDto) {
-    const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
+    const existing = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
     if (existing) throw new ConflictException('Email already registered');
 
     const hashed = await bcrypt.hash(dto.password, 12);
@@ -37,7 +39,9 @@ export class AuthService {
   }
 
   async login(dto: LoginDto) {
-    const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
     if (!user) throw new UnauthorizedException('Invalid credentials');
 
     const valid = await bcrypt.compare(dto.password, user.password);
@@ -47,7 +51,8 @@ export class AuthService {
   }
 
   async refresh(rawRefreshToken: string) {
-    if (!rawRefreshToken) throw new UnauthorizedException('Missing refresh token');
+    if (!rawRefreshToken)
+      throw new UnauthorizedException('Missing refresh token');
 
     let payload: { sub: string; email: string; jti?: string };
     try {
@@ -60,7 +65,9 @@ export class AuthService {
 
     if (!payload.jti) throw new UnauthorizedException('Invalid refresh token');
 
-    const stored = await this.prisma.refreshToken.findUnique({ where: { id: payload.jti } });
+    const stored = await this.prisma.refreshToken.findUnique({
+      where: { id: payload.jti },
+    });
 
     if (!stored || stored.userId !== payload.sub) {
       throw new UnauthorizedException('Invalid refresh token');
@@ -85,7 +92,10 @@ export class AuthService {
     const matches = await bcrypt.compare(rawRefreshToken, stored.token);
     if (!matches) throw new UnauthorizedException('Invalid refresh token');
 
-    await this.prisma.refreshToken.update({ where: { id: stored.id }, data: { revoked: true } });
+    await this.prisma.refreshToken.update({
+      where: { id: stored.id },
+      data: { revoked: true },
+    });
     return this.issueTokens(payload.sub, payload.email);
   }
 
