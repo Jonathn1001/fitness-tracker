@@ -11,10 +11,14 @@ describe('Feedback (e2e)', () => {
   let accessToken: string;
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
     app = moduleRef.createNestApplication();
     app.use(cookieParser());
-    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+    app.useGlobalPipes(
+      new ValidationPipe({ whitelist: true, transform: true }),
+    );
     await app.init();
     prisma = moduleRef.get(PrismaService);
   });
@@ -31,9 +35,11 @@ describe('Feedback (e2e)', () => {
     await prisma.workoutTemplate.deleteMany();
     await prisma.user.deleteMany();
 
-    const res = await request(app.getHttpServer())
-      .post('/auth/signup')
-      .send({ email: 'test@example.com', password: 'Password1!', name: 'Test' });
+    const res = await request(app.getHttpServer()).post('/auth/signup').send({
+      email: 'test@example.com',
+      password: 'Password1!',
+      name: 'Test',
+    });
     accessToken = res.body.accessToken;
   });
 

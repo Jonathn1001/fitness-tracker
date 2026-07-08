@@ -7,7 +7,9 @@ export class GeminiService {
   private ai: GoogleGenAI;
 
   constructor(private config: ConfigService) {
-    this.ai = new GoogleGenAI({ apiKey: this.config.get<string>('GEMINI_API_KEY') ?? '' });
+    this.ai = new GoogleGenAI({
+      apiKey: this.config.get<string>('GEMINI_API_KEY') ?? '',
+    });
   }
 
   async generateFeedback(contextSnapshot: object): Promise<string> {

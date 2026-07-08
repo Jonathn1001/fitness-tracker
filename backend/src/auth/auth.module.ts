@@ -7,11 +7,7 @@ import { JwtStrategy } from './jwt.strategy';
 import { TemplatesModule } from '../templates/templates.module';
 
 @Module({
-  imports: [
-    PassportModule,
-    JwtModule.register({}),
-    TemplatesModule,
-  ],
+  imports: [PassportModule, JwtModule.register({}), TemplatesModule],
   providers: [AuthService, JwtStrategy],
   controllers: [AuthController],
   exports: [AuthService],

@@ -1,4 +1,11 @@
-import { Controller, Post, Get, Query, UseGuards, HttpCode } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Query,
+  UseGuards,
+  HttpCode,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { FeedbackService } from './feedback.service';
@@ -20,6 +27,10 @@ export class FeedbackController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
-    return this.feedbackService.findAll(user.id, Number(page) || 1, Number(limit) || 10);
+    return this.feedbackService.findAll(
+      user.id,
+      Number(page) || 1,
+      Number(limit) || 10,
+    );
   }
 }
