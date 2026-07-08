@@ -8,13 +8,12 @@ import { useThemeStore } from '../store/theme'
 import { decodeJwt, nameFromEmail } from '../lib/jwt'
 import { Topbar } from '../components/Topbar'
 import { Icon } from '../components/ui/Icon'
+import { TYPE_COLOR, TYPE_LABEL } from '../lib/workoutMeta'
 
 const DAY_ORDER = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
 const DAY_LABEL: Record<string, string> = {
   mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun',
 }
-const TYPE_COLOR: Record<string, string> = { gym: 'var(--accent)', kickboxing: 'var(--accent-2)' }
-const TYPE_LABEL: Record<string, string> = { gym: 'Strength', kickboxing: 'Kickbox' }
 
 function ymd(d: Date) { return d.toISOString().split('T')[0] }
 
@@ -54,7 +53,11 @@ export function ProfilePage() {
   const totalHours = Math.round(completed.length * 0.85)
 
   const handleLogout = async () => {
-    try { await logout() } catch {}
+    try {
+      await logout()
+    } catch {
+      // Best-effort: clear local state even if the server call fails.
+    }
     clearToken()
     navigate('/login')
   }

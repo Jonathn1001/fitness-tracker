@@ -12,10 +12,14 @@ describe('Templates (e2e)', () => {
   let templateDayId: string;
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
     app = moduleRef.createNestApplication();
     app.use(cookieParser());
-    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+    app.useGlobalPipes(
+      new ValidationPipe({ whitelist: true, transform: true }),
+    );
     await app.init();
     prisma = moduleRef.get(PrismaService);
   });
@@ -28,9 +32,11 @@ describe('Templates (e2e)', () => {
     await prisma.refreshToken.deleteMany();
     await prisma.user.deleteMany();
 
-    const res = await request(app.getHttpServer())
-      .post('/auth/signup')
-      .send({ email: 'test@example.com', password: 'Password1!', name: 'Test' });
+    const res = await request(app.getHttpServer()).post('/auth/signup').send({
+      email: 'test@example.com',
+      password: 'Password1!',
+      name: 'Test',
+    });
     accessToken = res.body.accessToken;
 
     const plan = await request(app.getHttpServer())
@@ -65,8 +71,20 @@ describe('Templates (e2e)', () => {
       .set('Authorization', `Bearer ${accessToken}`)
       .send({
         exercises: [
-          { exerciseId: exercises[0].id, defaultSets: 4, defaultReps: 8, defaultWeightKg: 80, order: 1 },
-          { exerciseId: exercises[1].id, defaultSets: 3, defaultReps: 12, defaultWeightKg: 60, order: 2 },
+          {
+            exerciseId: exercises[0].id,
+            defaultSets: 4,
+            defaultReps: 8,
+            defaultWeightKg: 80,
+            order: 1,
+          },
+          {
+            exerciseId: exercises[1].id,
+            defaultSets: 3,
+            defaultReps: 12,
+            defaultWeightKg: 60,
+            order: 2,
+          },
         ],
       })
       .expect(200);

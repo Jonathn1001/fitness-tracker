@@ -16,7 +16,9 @@ describe('Auth (e2e)', () => {
 
     app = moduleRef.createNestApplication();
     app.use(cookieParser());
-    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+    app.useGlobalPipes(
+      new ValidationPipe({ whitelist: true, transform: true }),
+    );
     await app.init();
 
     prisma = moduleRef.get(PrismaService);
@@ -42,7 +44,11 @@ describe('Auth (e2e)', () => {
   it('POST /auth/signup — creates user and returns access token', async () => {
     const res = await request(app.getHttpServer())
       .post('/auth/signup')
-      .send({ email: 'test@example.com', password: 'Password1!', name: 'Test User' })
+      .send({
+        email: 'test@example.com',
+        password: 'Password1!',
+        name: 'Test User',
+      })
       .expect(201);
 
     expect(res.body.accessToken).toBeDefined();
@@ -50,20 +56,28 @@ describe('Auth (e2e)', () => {
   });
 
   it('POST /auth/signup — rejects duplicate email', async () => {
-    await request(app.getHttpServer())
-      .post('/auth/signup')
-      .send({ email: 'test@example.com', password: 'Password1!', name: 'Test User' });
+    await request(app.getHttpServer()).post('/auth/signup').send({
+      email: 'test@example.com',
+      password: 'Password1!',
+      name: 'Test User',
+    });
 
     await request(app.getHttpServer())
       .post('/auth/signup')
-      .send({ email: 'test@example.com', password: 'Password1!', name: 'Another' })
+      .send({
+        email: 'test@example.com',
+        password: 'Password1!',
+        name: 'Another',
+      })
       .expect(409);
   });
 
   it('POST /auth/login — returns access token for valid credentials', async () => {
-    await request(app.getHttpServer())
-      .post('/auth/signup')
-      .send({ email: 'test@example.com', password: 'Password1!', name: 'Test User' });
+    await request(app.getHttpServer()).post('/auth/signup').send({
+      email: 'test@example.com',
+      password: 'Password1!',
+      name: 'Test User',
+    });
 
     const res = await request(app.getHttpServer())
       .post('/auth/login')
@@ -74,9 +88,11 @@ describe('Auth (e2e)', () => {
   });
 
   it('POST /auth/login — rejects wrong password', async () => {
-    await request(app.getHttpServer())
-      .post('/auth/signup')
-      .send({ email: 'test@example.com', password: 'Password1!', name: 'Test User' });
+    await request(app.getHttpServer()).post('/auth/signup').send({
+      email: 'test@example.com',
+      password: 'Password1!',
+      name: 'Test User',
+    });
 
     await request(app.getHttpServer())
       .post('/auth/login')

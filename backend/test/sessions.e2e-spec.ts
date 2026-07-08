@@ -13,10 +13,14 @@ describe('Sessions (e2e)', () => {
   let templateDayId: string;
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
     app = moduleRef.createNestApplication();
     app.use(cookieParser());
-    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+    app.useGlobalPipes(
+      new ValidationPipe({ whitelist: true, transform: true }),
+    );
     await app.init();
     prisma = moduleRef.get(PrismaService);
   });
@@ -33,9 +37,11 @@ describe('Sessions (e2e)', () => {
     await prisma.workoutTemplate.deleteMany();
     await prisma.user.deleteMany();
 
-    const res = await request(app.getHttpServer())
-      .post('/auth/signup')
-      .send({ email: 'test@example.com', password: 'Password1!', name: 'Test' });
+    const res = await request(app.getHttpServer()).post('/auth/signup').send({
+      email: 'test@example.com',
+      password: 'Password1!',
+      name: 'Test',
+    });
     accessToken = res.body.accessToken;
 
     const plan = await request(app.getHttpServer())
@@ -51,7 +57,13 @@ describe('Sessions (e2e)', () => {
     const res = await request(app.getHttpServer())
       .post('/sessions')
       .set('Authorization', `Bearer ${accessToken}`)
-      .send({ templateDayId, date: '2026-03-24', warmupType: 'run', warmupDurationMin: 10, idempotencyKey: key })
+      .send({
+        templateDayId,
+        date: '2026-03-24',
+        warmupType: 'run',
+        warmupDurationMin: 10,
+        idempotencyKey: key,
+      })
       .expect(201);
 
     expect(res.body.status).toBe('in_progress');
@@ -61,7 +73,13 @@ describe('Sessions (e2e)', () => {
     const dup = await request(app.getHttpServer())
       .post('/sessions')
       .set('Authorization', `Bearer ${accessToken}`)
-      .send({ templateDayId, date: '2026-03-24', warmupType: 'run', warmupDurationMin: 10, idempotencyKey: key })
+      .send({
+        templateDayId,
+        date: '2026-03-24',
+        warmupType: 'run',
+        warmupDurationMin: 10,
+        idempotencyKey: key,
+      })
       .expect(201);
 
     expect(dup.body.id).toBe(res.body.id);
@@ -115,8 +133,22 @@ describe('Sessions (e2e)', () => {
       .put(`/sessions/${session.id}/sets`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send([
-        { exerciseId: exercise.id, setNumber: 1, reps: 10, weightKg: 80, completed: true, idempotencyKey: key1 },
-        { exerciseId: exercise.id, setNumber: 2, reps: 8, weightKg: 82.5, completed: false, idempotencyKey: uuidv4() },
+        {
+          exerciseId: exercise.id,
+          setNumber: 1,
+          reps: 10,
+          weightKg: 80,
+          completed: true,
+          idempotencyKey: key1,
+        },
+        {
+          exerciseId: exercise.id,
+          setNumber: 2,
+          reps: 8,
+          weightKg: 82.5,
+          completed: false,
+          idempotencyKey: uuidv4(),
+        },
       ])
       .expect(200);
 
@@ -127,11 +159,20 @@ describe('Sessions (e2e)', () => {
       .put(`/sessions/${session.id}/sets`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send([
-        { exerciseId: exercise.id, setNumber: 1, reps: 10, weightKg: 80, completed: true, idempotencyKey: key1 },
+        {
+          exerciseId: exercise.id,
+          setNumber: 1,
+          reps: 10,
+          weightKg: 80,
+          completed: true,
+          idempotencyKey: key1,
+        },
       ])
       .expect(200);
 
-    const sets = await prisma.sessionSet.findMany({ where: { sessionId: session.id } });
+    const sets = await prisma.sessionSet.findMany({
+      where: { sessionId: session.id },
+    });
     expect(sets).toHaveLength(2); // not 3
   });
 });

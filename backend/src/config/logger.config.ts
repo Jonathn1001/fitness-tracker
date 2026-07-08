@@ -31,7 +31,7 @@ const REDACT_PATHS = [
 
 export function buildLoggerOptions(): Params {
   const isProd = process.env.NODE_ENV === 'production';
-  const level = (process.env.LOG_LEVEL ?? (isProd ? 'info' : 'debug')) as string;
+  const level = process.env.LOG_LEVEL ?? (isProd ? 'info' : 'debug');
 
   return {
     pinoHttp: {
@@ -49,12 +49,14 @@ export function buildLoggerOptions(): Params {
         return incoming;
       },
       serializers: {
-        req: (req) => ({
+        req: (req: { id: string; method: string; url: string }) => ({
           id: req.id,
           method: req.method,
           url: req.url,
         }),
-        res: (res) => ({ statusCode: res.statusCode }),
+        res: (res: { statusCode: number }) => ({
+          statusCode: res.statusCode,
+        }),
       },
       customLogLevel: (_req, res, err) => {
         if (err || res.statusCode >= 500) return 'error';

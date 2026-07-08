@@ -6,9 +6,7 @@ import { KickboxingLogger } from '../components/KickboxingLogger'
 import { deleteSession, updateSession } from '../api/sessions'
 import { Topbar } from '../components/Topbar'
 import { Icon, Pill } from '../components/ui/Icon'
-
-const TYPE_COLOR: Record<string, string> = { gym: 'var(--accent)', kickboxing: 'var(--accent-2)' }
-const TYPE_LABEL: Record<string, string> = { gym: 'Strength', kickboxing: 'Kickbox' }
+import { TYPE_COLOR, TYPE_LABEL } from '../lib/workoutMeta'
 
 export function SessionPage() {
   const { id } = useParams<{ id: string }>()

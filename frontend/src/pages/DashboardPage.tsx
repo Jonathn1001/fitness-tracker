@@ -7,19 +7,11 @@ import { createSession } from '../api/sessions'
 import { Topbar } from '../components/Topbar'
 import { Icon, Pill } from '../components/ui/Icon'
 import type { TemplateDay } from '../api/types'
+import { TYPE_COLOR, TYPE_LABEL } from '../lib/workoutMeta'
 
 const DAY_ORDER = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
 const DAY_LABEL: Record<string, string> = {
   mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun',
-}
-
-export const TYPE_COLOR: Record<string, string> = {
-  gym: 'var(--accent)',
-  kickboxing: 'var(--accent-2)',
-}
-export const TYPE_LABEL: Record<string, string> = {
-  gym: 'Strength',
-  kickboxing: 'Kickbox',
 }
 
 function todayDow() { return DAY_ORDER[(new Date().getDay() + 6) % 7] }
@@ -49,7 +41,7 @@ export function DashboardPage() {
 
   const dow = todayDow()
   const today = plan?.days?.find((d) => d.dayOfWeek === dow)
-  const sessions = recent?.data ?? []
+  const sessions = useMemo(() => recent?.data ?? [], [recent])
 
   const streakDays = useMemo(() => {
     const days = new Set(

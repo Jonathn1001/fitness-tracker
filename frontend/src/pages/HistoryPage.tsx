@@ -1,25 +1,25 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSessions } from '../hooks/useSessions'
 import { useWeeklyPlan } from '../hooks/useWeeklyPlan'
 import { Topbar } from '../components/Topbar'
 import { Icon, Pill } from '../components/ui/Icon'
 import type { WorkoutType } from '../api/types'
-
-const TYPE_COLOR: Record<string, string> = { gym: 'var(--accent)', kickboxing: 'var(--accent-2)' }
-const TYPE_LABEL: Record<string, string> = { gym: 'Strength', kickboxing: 'Kickbox' }
+import { TYPE_COLOR, TYPE_LABEL } from '../lib/workoutMeta'
 
 type Filter = 'all' | 'gym' | 'kickboxing'
+
+function isoDaysAgo(days: number) {
+  return new Date(Date.now() - days * 864e5).toISOString().split('T')[0]
+}
+
+const INITIAL_FROM = isoDaysAgo(30)
 
 export function HistoryPage() {
   const navigate = useNavigate()
   const [filter, setFilter] = useState<Filter>('all')
   const [range, setRange] = useState<'30d' | '90d'>('30d')
-
-  const from = useMemo(() => {
-    const days = range === '30d' ? 30 : 90
-    return new Date(Date.now() - days * 864e5).toISOString().split('T')[0]
-  }, [range])
+  const [from, setFrom] = useState(INITIAL_FROM)
 
   const { data, isLoading } = useSessions({ from, limit: 100 })
   const { data: plan } = useWeeklyPlan()
@@ -44,7 +44,15 @@ export function HistoryPage() {
         title="History"
         sub={`Last ${range === '30d' ? '30' : '90'} days`}
         right={
-          <button className="iconbtn ghost" onClick={() => setRange(range === '30d' ? '90d' : '30d')} aria-label="Change range">
+          <button
+            className="iconbtn ghost"
+            onClick={() => {
+              const next = range === '30d' ? '90d' : '30d'
+              setRange(next)
+              setFrom(isoDaysAgo(next === '30d' ? 30 : 90))
+            }}
+            aria-label="Change range"
+          >
             <Icon name="calendar" size={20} />
           </button>
         }

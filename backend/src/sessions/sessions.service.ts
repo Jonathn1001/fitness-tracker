@@ -17,13 +17,25 @@ export class SessionsService {
     const existing = await this.prisma.session.findUnique({
       where: { idempotencyKey: dto.idempotencyKey },
     });
-    if (existing) return existing;
+    if (existing) {
+      if (existing.userId !== userId) {
+        throw new ConflictException('Idempotency key already in use');
+      }
+      return existing;
+    }
 
-    if (dto.templateDayId && (dto.warmupType || dto.warmupDurationMin)) {
+    if (dto.templateDayId) {
       const day = await this.prisma.templateDay.findUnique({
         where: { id: dto.templateDayId },
+        include: { template: { select: { userId: true } } },
       });
-      if (day?.workoutType === 'kickboxing') {
+      if (!day || day.template.userId !== userId) {
+        throw new NotFoundException('Template day not found');
+      }
+      if (
+        day.workoutType === 'kickboxing' &&
+        (dto.warmupType || dto.warmupDurationMin)
+      ) {
         throw new BadRequestException(
           'Warmup fields are not valid for kickboxing sessions',
         );

@@ -21,7 +21,11 @@ export class FeedbackService {
     periodStart.setDate(periodStart.getDate() - 14);
 
     const sessions = await this.prisma.session.findMany({
-      where: { userId, status: 'completed', date: { gte: periodStart, lte: periodEnd } },
+      where: {
+        userId,
+        status: 'completed',
+        date: { gte: periodStart, lte: periodEnd },
+      },
       include: {
         sessionSets: { include: { exercise: true } },
         sessionRounds: { include: { roundType: true } },
@@ -61,9 +65,15 @@ export class FeedbackService {
         data: { userId, content, periodStart, periodEnd, contextSnapshot },
       });
     } catch (err) {
-      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2002'
+      ) {
         throw new HttpException(
-          { message: 'Rate limit: 1 feedback per day', retry_after: todayEnd.toISOString() },
+          {
+            message: 'Rate limit: 1 feedback per day',
+            retry_after: todayEnd.toISOString(),
+          },
           HttpStatus.TOO_MANY_REQUESTS,
         );
       }
@@ -75,7 +85,13 @@ export class FeedbackService {
     const [data, total] = await this.prisma.$transaction([
       this.prisma.aiFeedback.findMany({
         where: { userId },
-        select: { id: true, content: true, periodStart: true, periodEnd: true, generatedAt: true },
+        select: {
+          id: true,
+          content: true,
+          periodStart: true,
+          periodEnd: true,
+          generatedAt: true,
+        },
         orderBy: { generatedAt: 'desc' },
         skip: (page - 1) * limit,
         take: limit,
