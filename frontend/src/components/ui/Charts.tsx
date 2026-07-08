@@ -10,17 +10,17 @@ export function LineChart({ data, color, height = 200, fill = true, axis = true 
   if (!data.length) {
     return <p className="dim" style={{ fontSize: 13 }}>No data yet</p>
   }
-  if (data.length === 1) data = [data[0], data[0]]
+  const series = data.length === 1 ? [data[0], data[0]] : data
 
   const w = 600, h = height
   const pad = { l: 36, r: 12, t: 12, b: 24 }
-  const min = Math.min(...data) * 0.95
-  const max = Math.max(...data) * 1.02
+  const min = Math.min(...series) * 0.95
+  const max = Math.max(...series) * 1.02
   const range = max - min || 1
   const innerW = w - pad.l - pad.r
   const innerH = h - pad.t - pad.b
-  const pts = data.map((v, i) => [
-    pad.l + (i / (data.length - 1)) * innerW,
+  const pts = series.map((v, i) => [
+    pad.l + (i / (series.length - 1)) * innerW,
     pad.t + (1 - (v - min) / range) * innerH,
   ])
   const d = pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(' ')
@@ -147,13 +147,4 @@ export function DonutChart({ value, max = 100, color, size = 140 }: DonutChartPr
       </text>
     </svg>
   )
-}
-
-export const TYPE_COLOR: Record<string, string> = {
-  gym: 'var(--accent)',
-  kickboxing: 'var(--accent-2)',
-}
-export const TYPE_LABEL: Record<string, string> = {
-  gym: 'Strength',
-  kickboxing: 'Kickbox',
 }

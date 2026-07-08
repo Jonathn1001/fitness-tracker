@@ -1,3 +1,6 @@
+/* eslint-disable react-refresh/only-export-components --
+   Route config: mixes the route table with lazy wrappers by design;
+   full-page reload on edit is acceptable here. */
 import { lazy, Suspense, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { Layout } from "./components/Layout";
