@@ -15,15 +15,18 @@ jobs:
     name: Claude agent review
     runs-on: ubuntu-latest
     env:
-      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      # Subscription (Pro/Max) auth — generate with `claude setup-token`,
+      # then add it as the CLAUDE_CODE_OAUTH_TOKEN repo secret. Billed to
+      # the subscription, no per-token API charges.
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
     steps:
-      # Without the secret the action can't run; skip cleanly instead of
-      # failing the check. Add ANTHROPIC_API_KEY in repo settings to enable.
-      - name: Check for API key
+      # Without the token the action can't run; skip cleanly instead of
+      # failing the check. Add CLAUDE_CODE_OAUTH_TOKEN in repo settings to enable.
+      - name: Check for auth token
         id: gate
         run: |
-          if [ -z "$ANTHROPIC_API_KEY" ]; then
-            echo "ANTHROPIC_API_KEY not set — skipping agent review."
+          if [ -z "$CLAUDE_CODE_OAUTH_TOKEN" ]; then
+            echo "CLAUDE_CODE_OAUTH_TOKEN not set — skipping agent review."
             echo "enabled=false" >> "$GITHUB_OUTPUT"
           else
             echo "enabled=true" >> "$GITHUB_OUTPUT"
@@ -39,7 +42,7 @@ jobs:
         if: steps.gate.outputs.enabled == 'true'
         uses: anthropics/claude-code-action@v1
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           claude_args: "--model claude-sonnet-5"
           use_sticky_comment: true
           prompt: |
