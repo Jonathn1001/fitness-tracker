@@ -13,7 +13,9 @@ const queryClient = new QueryClient({
   },
 })
 
-const router = createBrowserRouter(routes)
+// BASE_URL is '/' locally and '/<repo>/' on GitHub Pages.
+const basename = import.meta.env.BASE_URL.replace(/\/+$/, '') || undefined
+const router = createBrowserRouter(routes, { basename })
 
 const drainQueue = () => {
   replayQueue(async (entry) => {
