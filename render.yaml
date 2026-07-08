@@ -1,7 +1,15 @@
 # Render Blueprint — create via https://dashboard.render.com → New → Blueprint
-# Free tier notes: the web service sleeps after 15 min idle (first request
-# after sleep takes ~1 min); the free Postgres instance expires after 30 days
-# unless upgraded.
+#
+# Free tier notes:
+# - The web service sleeps after 15 min idle (first request after sleep
+#   takes ~50s to wake).
+# - Database is Neon (https://neon.tech), permanent free tier — no 30-day
+#   expiry. Create a Neon project, copy its pooled connection string, and
+#   paste it as DATABASE_URL in the Render dashboard (it is sync:false here
+#   so the value is never committed to git).
+# - The public URL is <name>.onrender.com and must be globally unique. If
+#   "fitness-tracker-api" is taken, Render assigns a suffixed name — use the
+#   URL Render shows and update the repo variable VITE_API_URL to match.
 services:
   - type: web
     name: fitness-tracker-api
@@ -18,9 +26,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: DATABASE_URL
-        fromDatabase:
-          name: fitness-tracker-db
-          property: connectionString
+        sync: false # Neon pooled connection string — set in the Render dashboard
       - key: JWT_SECRET
         generateValue: true
       - key: JWT_REFRESH_SECRET
@@ -29,9 +35,3 @@ services:
         sync: false # set in the Render dashboard
       - key: FRONTEND_URL
         value: https://jonathn1001.github.io
-
-databases:
-  - name: fitness-tracker-db
-    plan: free
-    databaseName: fitness
-    user: fitness
