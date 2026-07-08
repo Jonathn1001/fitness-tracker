@@ -1,0 +1,62 @@
+name: Claude Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [master]
+
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write
+
+jobs:
+  claude-review:
+    name: Claude agent review
+    runs-on: ubuntu-latest
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    steps:
+      # Without the secret the action can't run; skip cleanly instead of
+      # failing the check. Add ANTHROPIC_API_KEY in repo settings to enable.
+      - name: Check for API key
+        id: gate
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "ANTHROPIC_API_KEY not set — skipping agent review."
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout
+        if: steps.gate.outputs.enabled == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Claude review
+        if: steps.gate.outputs.enabled == 'true'
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: "--model claude-sonnet-5"
+          use_sticky_comment: true
+          prompt: |
+            Review this pull request as a senior engineer for a NestJS + React
+            fitness-tracking PWA. Report only real issues, ranked by severity;
+            skip praise and style nits already covered by eslint/prettier.
+
+            Focus on:
+            - Security: authn/authz, tenant isolation (per-user data scoping),
+              JWT/refresh handling, secrets, injection, CORS/cookie flags.
+            - Correctness: logic bugs, unhandled errors, race conditions,
+              broken Prisma queries or migrations.
+            - CI/CD and infrastructure: when this PR touches
+              `.github/workflows/**` or `render.yaml`, review those too —
+              flag deploys that run on unverified code, missing gates,
+              leaked secrets, wrong triggers/branches, and unsafe permissions.
+            - Tests: missing coverage for the behavior changed here.
+
+            Post concrete, actionable inline comments. If nothing is wrong,
+            say so briefly.
