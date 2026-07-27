@@ -42,8 +42,14 @@ export function KickboxingLogger({ sessionId, rounds }: Props) {
   const doneCount = entries.filter((e) => e.completed).length
   const progress = entries.length ? doneCount / entries.length : 0
 
-  const setField = (i: number, field: keyof RoundEntry, value: number | boolean) => {
-    setEntries((prev) => prev.map((e, idx) => (idx === i ? { ...e, [field]: value } : e)))
+  const setField = (
+    i: number,
+    field: keyof RoundEntry,
+    value: number | boolean,
+  ) => {
+    setEntries((prev) =>
+      prev.map((e, idx) => (idx === i ? { ...e, [field]: value } : e)),
+    )
   }
 
   const handleFinish = async () => {
@@ -64,10 +70,18 @@ export function KickboxingLogger({ sessionId, rounds }: Props) {
       {/* Progress */}
       <div className="session-progress">
         <div className="progress-bar">
-          <div className="progress-fill" style={{ width: `${progress * 100}%`, background: 'var(--accent-2)' }} />
+          <div
+            className="progress-fill"
+            style={{
+              width: `${progress * 100}%`,
+              background: 'var(--accent-2)',
+            }}
+          />
         </div>
         <div className="progress-meta">
-          <span>{doneCount}/{entries.length} rounds</span>
+          <span>
+            {doneCount}/{entries.length} rounds
+          </span>
           <span>{Math.round(progress * 100)}%</span>
         </div>
       </div>
@@ -77,28 +91,45 @@ export function KickboxingLogger({ sessionId, rounds }: Props) {
         {rounds.map((round, idx) => {
           const entry = entries[idx]
           return (
-            <div key={round.id} className={`card round${entry.completed ? ' complete' : ''}`}>
+            <div
+              key={round.id}
+              className={`card round${entry.completed ? ' complete' : ''}`}
+            >
               <div className="round-head">
                 <div
                   className="round-num"
                   style={{
-                    background: entry.completed ? 'var(--accent-2)' : 'transparent',
+                    background: entry.completed
+                      ? 'var(--accent-2)'
+                      : 'transparent',
                     borderColor: 'var(--accent-2)',
                     color: entry.completed ? '#0b0b0b' : 'var(--ink)',
                   }}
                 >
-                  {entry.completed ? <Icon name="check" size={14} stroke={3} /> : round.roundNumber}
+                  {entry.completed ? (
+                    <Icon name="check" size={14} stroke={3} />
+                  ) : (
+                    round.roundNumber
+                  )}
                 </div>
                 <div className="round-name">
                   <div className="round-title">
-                    {round.roundType.name[0].toUpperCase() + round.roundType.name.slice(1)}
+                    {round.roundType.name[0].toUpperCase() +
+                      round.roundType.name.slice(1)}
                   </div>
-                  <div className="round-meta">Quality {entry.qualityRating} / 5</div>
+                  <div className="round-meta">
+                    Quality {entry.qualityRating} / 5
+                  </div>
                 </div>
                 <button
                   className={`check${entry.completed ? ' on' : ''}`}
                   onClick={() => setField(idx, 'completed', !entry.completed)}
-                  style={{ borderColor: 'var(--accent-2)', background: entry.completed ? 'var(--accent-2)' : 'transparent' }}
+                  style={{
+                    borderColor: 'var(--accent-2)',
+                    background: entry.completed
+                      ? 'var(--accent-2)'
+                      : 'transparent',
+                  }}
                 >
                   <Icon name="check" size={16} stroke={3} />
                 </button>
@@ -111,7 +142,13 @@ export function KickboxingLogger({ sessionId, rounds }: Props) {
                       key={q}
                       className={`dot${entry.qualityRating >= q ? ' on' : ''}`}
                       onClick={() => setField(idx, 'qualityRating', q)}
-                      style={{ background: entry.qualityRating >= q ? 'var(--accent-2)' : 'transparent', borderColor: 'var(--accent-2)' }}
+                      style={{
+                        background:
+                          entry.qualityRating >= q
+                            ? 'var(--accent-2)'
+                            : 'transparent',
+                        borderColor: 'var(--accent-2)',
+                      }}
                     />
                   ))}
                 </div>
@@ -123,8 +160,13 @@ export function KickboxingLogger({ sessionId, rounds }: Props) {
 
       {/* Finish */}
       <div className="sticky-finish">
-        <button className="btn primary full" onClick={handleFinish} disabled={saving}>
-          <Icon name="check" size={18} stroke={3} /> {saving ? 'Saving…' : 'Finish session'}
+        <button
+          className="btn primary full"
+          onClick={handleFinish}
+          disabled={saving}
+        >
+          <Icon name="check" size={18} stroke={3} />{' '}
+          {saving ? 'Saving…' : 'Finish session'}
         </button>
       </div>
     </>

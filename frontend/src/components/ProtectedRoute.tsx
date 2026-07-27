@@ -13,7 +13,11 @@ export function ProtectedRoute() {
     if (token) return
     let cancelled = false
     axios
-      .post<{ accessToken: string }>(`${BASE_URL}/auth/refresh`, {}, { withCredentials: true })
+      .post<{ accessToken: string }>(
+        `${BASE_URL}/auth/refresh`,
+        {},
+        { withCredentials: true },
+      )
       .then((res) => {
         if (!cancelled) setToken(res.data.accessToken)
       })

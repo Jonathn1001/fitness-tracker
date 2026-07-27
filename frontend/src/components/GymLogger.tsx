@@ -33,7 +33,9 @@ export function GymLogger({ sessionId, exercises }: Props) {
   const [openEx, setOpenEx] = useState<string | null>(exercises[0]?.id ?? null)
   const [saving, setSaving] = useState(false)
 
-  const [setsByExercise, setSetsByExercise] = useState<Record<string, SetEntry[]>>(() =>
+  const [setsByExercise, setSetsByExercise] = useState<
+    Record<string, SetEntry[]>
+  >(() =>
     Object.fromEntries(
       exercises.map((ex) => [
         ex.id,
@@ -48,15 +50,28 @@ export function GymLogger({ sessionId, exercises }: Props) {
     ),
   )
 
-  const totalSets = Object.values(setsByExercise).reduce((a, b) => a + b.length, 0)
-  const doneSets  = Object.values(setsByExercise).reduce((a, b) => a + b.filter((s) => s.completed).length, 0)
-  const progress  = totalSets ? doneSets / totalSets : 0
+  const totalSets = Object.values(setsByExercise).reduce(
+    (a, b) => a + b.length,
+    0,
+  )
+  const doneSets = Object.values(setsByExercise).reduce(
+    (a, b) => a + b.filter((s) => s.completed).length,
+    0,
+  )
+  const progress = totalSets ? doneSets / totalSets : 0
 
-  const bump = (exId: string, n: number, field: 'reps' | 'weightKg', delta: number) => {
+  const bump = (
+    exId: string,
+    n: number,
+    field: 'reps' | 'weightKg',
+    delta: number,
+  ) => {
     setSetsByExercise((prev) => ({
       ...prev,
       [exId]: prev[exId].map((s) =>
-        s.n === n ? { ...s, [field]: Math.max(0, +(s[field] + delta).toFixed(2)) } : s,
+        s.n === n
+          ? { ...s, [field]: Math.max(0, +(s[field] + delta).toFixed(2)) }
+          : s,
       ),
     }))
   }
@@ -64,7 +79,9 @@ export function GymLogger({ sessionId, exercises }: Props) {
   const toggleSet = (exId: string, n: number) => {
     setSetsByExercise((prev) => ({
       ...prev,
-      [exId]: prev[exId].map((s) => (s.n === n ? { ...s, completed: !s.completed } : s)),
+      [exId]: prev[exId].map((s) =>
+        s.n === n ? { ...s, completed: !s.completed } : s,
+      ),
     }))
   }
 
@@ -96,10 +113,15 @@ export function GymLogger({ sessionId, exercises }: Props) {
       {/* Progress */}
       <div className="session-progress">
         <div className="progress-bar">
-          <div className="progress-fill" style={{ width: `${progress * 100}%`, background: 'var(--accent)' }} />
+          <div
+            className="progress-fill"
+            style={{ width: `${progress * 100}%`, background: 'var(--accent)' }}
+          />
         </div>
         <div className="progress-meta">
-          <span>{doneSets}/{totalSets} sets</span>
+          <span>
+            {doneSets}/{totalSets} sets
+          </span>
           <span>{Math.round(progress * 100)}%</span>
         </div>
       </div>
@@ -113,7 +135,10 @@ export function GymLogger({ sessionId, exercises }: Props) {
           const open = openEx === ex.id
           return (
             <div key={ex.id} className={`card ex${allDone ? ' complete' : ''}`}>
-              <button className="ex-head" onClick={() => setOpenEx(open ? null : ex.id)}>
+              <button
+                className="ex-head"
+                onClick={() => setOpenEx(open ? null : ex.id)}
+              >
                 <div
                   className="ex-num"
                   style={{
@@ -122,7 +147,11 @@ export function GymLogger({ sessionId, exercises }: Props) {
                     color: allDone ? '#0b0b0b' : 'var(--ink)',
                   }}
                 >
-                  {allDone ? <Icon name="check" size={14} stroke={3} /> : idx + 1}
+                  {allDone ? (
+                    <Icon name="check" size={14} stroke={3} />
+                  ) : (
+                    idx + 1
+                  )}
                 </div>
                 <div className="ex-name">
                   <div className="ex-title">{ex.name}</div>
@@ -131,31 +160,56 @@ export function GymLogger({ sessionId, exercises }: Props) {
                     {ex.defaultSets}×{ex.defaultReps} · {ex.defaultWeightKg}kg
                   </div>
                 </div>
-                <div className="ex-prog">{doneRows}/{rows.length}</div>
+                <div className="ex-prog">
+                  {doneRows}/{rows.length}
+                </div>
               </button>
 
               {open && (
                 <div className="ex-body">
                   <div className="set-head">
-                    <span>SET</span><span>REPS</span><span>KG</span><span />
+                    <span>SET</span>
+                    <span>REPS</span>
+                    <span>KG</span>
+                    <span />
                   </div>
                   {rows.map((r) => (
-                    <div key={r.n} className={`set-row${r.completed ? ' done' : ''}`}>
+                    <div
+                      key={r.n}
+                      className={`set-row${r.completed ? ' done' : ''}`}
+                    >
                       <span className="set-n">{r.n}</span>
                       <div className="stepper">
-                        <button onClick={() => bump(ex.id, r.n, 'reps', -1)}><Icon name="minus" size={14} /></button>
+                        <button onClick={() => bump(ex.id, r.n, 'reps', -1)}>
+                          <Icon name="minus" size={14} />
+                        </button>
                         <span className="mono">{r.reps}</span>
-                        <button onClick={() => bump(ex.id, r.n, 'reps', +1)}><Icon name="plus" size={14} /></button>
+                        <button onClick={() => bump(ex.id, r.n, 'reps', +1)}>
+                          <Icon name="plus" size={14} />
+                        </button>
                       </div>
                       <div className="stepper">
-                        <button onClick={() => bump(ex.id, r.n, 'weightKg', -2.5)}><Icon name="minus" size={14} /></button>
+                        <button
+                          onClick={() => bump(ex.id, r.n, 'weightKg', -2.5)}
+                        >
+                          <Icon name="minus" size={14} />
+                        </button>
                         <span className="mono">{r.weightKg}</span>
-                        <button onClick={() => bump(ex.id, r.n, 'weightKg', +2.5)}><Icon name="plus" size={14} /></button>
+                        <button
+                          onClick={() => bump(ex.id, r.n, 'weightKg', +2.5)}
+                        >
+                          <Icon name="plus" size={14} />
+                        </button>
                       </div>
                       <button
                         className={`check${r.completed ? ' on' : ''}`}
                         onClick={() => toggleSet(ex.id, r.n)}
-                        style={{ borderColor: 'var(--accent)', background: r.completed ? 'var(--accent)' : 'transparent' }}
+                        style={{
+                          borderColor: 'var(--accent)',
+                          background: r.completed
+                            ? 'var(--accent)'
+                            : 'transparent',
+                        }}
                       >
                         <Icon name="check" size={16} stroke={3} />
                       </button>
@@ -170,8 +224,13 @@ export function GymLogger({ sessionId, exercises }: Props) {
 
       {/* Finish */}
       <div className="sticky-finish">
-        <button className="btn primary full" onClick={handleFinish} disabled={saving}>
-          <Icon name="check" size={18} stroke={3} /> {saving ? 'Saving…' : 'Finish session'}
+        <button
+          className="btn primary full"
+          onClick={handleFinish}
+          disabled={saving}
+        >
+          <Icon name="check" size={18} stroke={3} />{' '}
+          {saving ? 'Saving…' : 'Finish session'}
         </button>
       </div>
     </>

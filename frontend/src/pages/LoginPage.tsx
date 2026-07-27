@@ -64,12 +64,24 @@ export function LoginPage() {
           </div>
           {error && <p className="error">{error}</p>}
           <button type="submit" className="btn primary full" disabled={loading}>
-            {loading ? <><span className="spinner" /> Signing in…</> : 'Sign in'}
+            {loading ? (
+              <>
+                <span className="spinner" /> Signing in…
+              </>
+            ) : (
+              'Sign in'
+            )}
           </button>
         </form>
 
-        <p className="dim" style={{ fontSize: 12.5, textAlign: 'center', marginTop: 16 }}>
-          No account? <Link to="/signup" style={{ color: 'var(--ink)', fontWeight: 700 }}>Create one</Link>
+        <p
+          className="dim"
+          style={{ fontSize: 12.5, textAlign: 'center', marginTop: 16 }}
+        >
+          No account?{' '}
+          <Link to="/signup" style={{ color: 'var(--ink)', fontWeight: 700 }}>
+            Create one
+          </Link>
         </p>
       </div>
     </div>

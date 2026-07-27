@@ -3,12 +3,13 @@ import { Icon, type IconName } from './ui/Icon'
 import { useAuthStore } from '../store/auth'
 import { decodeJwt, nameFromEmail } from '../lib/jwt'
 
-const NAV: Array<{ to: string; icon: IconName; label: string; end?: boolean }> = [
-  { to: '/',         icon: 'home',    label: 'Dashboard', end: true },
-  { to: '/history',  icon: 'history', label: 'History' },
-  { to: '/progress', icon: 'chart',   label: 'Progress' },
-  { to: '/feedback', icon: 'spark',   label: 'AI Coach' },
-]
+const NAV: Array<{ to: string; icon: IconName; label: string; end?: boolean }> =
+  [
+    { to: '/', icon: 'home', label: 'Dashboard', end: true },
+    { to: '/history', icon: 'history', label: 'History' },
+    { to: '/progress', icon: 'chart', label: 'Progress' },
+    { to: '/feedback', icon: 'spark', label: 'AI Coach' },
+  ]
 
 const ACCOUNT: Array<{ to: string; icon: IconName; label: string }> = [
   { to: '/profile', icon: 'user', label: 'Profile' },

@@ -34,7 +34,8 @@ export function Layout() {
 
       {pending > 0 && (
         <div className="sync-toast">
-          <Icon name="sync" size={16} /> {pending} session{pending > 1 ? 's' : ''} pending sync
+          <Icon name="sync" size={16} /> {pending} session
+          {pending > 1 ? 's' : ''} pending sync
         </div>
       )}
 
