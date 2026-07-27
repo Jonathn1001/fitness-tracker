@@ -16,6 +16,15 @@ services:
     runtime: node
     plan: free
     rootDir: backend
+    # NOT gated by CI. Render watches master directly, so a push deploys the
+    # backend whether or not .github/workflows/checks.yml passed — unlike the
+    # frontend, which deploy.yml holds behind those checks.
+    #
+    # To gate it: set this to false, add a Render deploy hook URL as the
+    # RENDER_DEPLOY_HOOK_URL repo secret, add a deploy-backend job to
+    # deploy.yml with `needs: checks` that curls it, then re-sync the
+    # blueprint. Until all of that is in place, flipping this flag alone just
+    # stops backend deploys.
     autoDeploy: true
     buildCommand: corepack enable && corepack prepare pnpm@10 --activate && pnpm install --frozen-lockfile && pnpm exec prisma generate && pnpm run build
     startCommand: node_modules/.bin/prisma migrate deploy && node dist/main
