@@ -8,6 +8,9 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateSessionDto } from './dto/create-session.dto';
 import { UpdateSessionDto } from './dto/update-session.dto';
 import { FindSessionsDto } from './dto/find-sessions.dto';
+import { assertSessionOwned } from './session-ownership';
+
+type WarmupFields = Pick<UpdateSessionDto, 'warmupType' | 'warmupDurationMin'>;
 
 @Injectable()
 export class SessionsService {
@@ -32,14 +35,7 @@ export class SessionsService {
       if (!day || day.template.userId !== userId) {
         throw new NotFoundException('Template day not found');
       }
-      if (
-        day.workoutType === 'kickboxing' &&
-        (dto.warmupType || dto.warmupDurationMin)
-      ) {
-        throw new BadRequestException(
-          'Warmup fields are not valid for kickboxing sessions',
-        );
-      }
+      this.assertWarmupAllowed(day.workoutType, dto);
     }
 
     return this.prisma.session.create({
@@ -102,12 +98,23 @@ export class SessionsService {
   }
 
   async update(userId: string, id: string, dto: UpdateSessionDto) {
-    await this.assertOwnership(userId, id);
+    const session = await assertSessionOwned(this.prisma, userId, id);
+
+    // The same rule create() enforces. Without it, PATCH is a way around the
+    // invariant: attach warmup minutes to a kickboxing session after the fact.
+    if (session.templateDayId && this.hasWarmupFields(dto)) {
+      const day = await this.prisma.templateDay.findUnique({
+        where: { id: session.templateDayId },
+        select: { workoutType: true },
+      });
+      this.assertWarmupAllowed(day?.workoutType, dto);
+    }
+
     return this.prisma.session.update({ where: { id }, data: dto });
   }
 
   async complete(userId: string, id: string) {
-    await this.assertOwnership(userId, id);
+    await assertSessionOwned(this.prisma, userId, id);
     return this.prisma.session.update({
       where: { id },
       data: { status: 'completed', completedAt: new Date() },
@@ -115,16 +122,25 @@ export class SessionsService {
   }
 
   async remove(userId: string, id: string) {
-    const session = await this.assertOwnership(userId, id);
+    const session = await assertSessionOwned(this.prisma, userId, id);
     if (session.status === 'completed') {
       throw new ConflictException('Cannot delete a completed session');
     }
     await this.prisma.session.delete({ where: { id } });
   }
 
-  private async assertOwnership(userId: string, id: string) {
-    const session = await this.prisma.session.findUnique({ where: { id } });
-    if (!session || session.userId !== userId) throw new NotFoundException();
-    return session;
+  private hasWarmupFields(dto: WarmupFields) {
+    return dto.warmupType !== undefined || dto.warmupDurationMin !== undefined;
+  }
+
+  private assertWarmupAllowed(
+    workoutType: string | undefined,
+    dto: WarmupFields,
+  ) {
+    if (workoutType === 'kickboxing' && this.hasWarmupFields(dto)) {
+      throw new BadRequestException(
+        'Warmup fields are not valid for kickboxing sessions',
+      );
+    }
   }
 }
