@@ -81,8 +81,8 @@ export class AuthController {
     res.cookie('refresh_token', token, {
       httpOnly: true,
       secure: isProd,
-      // Frontend (Vercel) and API (Render) live on different sites, so the
-      // cookie must be SameSite=None in production or it is never sent.
+      // Frontend (GitHub Pages) and API (Render) live on different sites, so
+      // the cookie must be SameSite=None in production or it is never sent.
       // CSRF is covered by the Origin allowlist check on /auth/refresh.
       sameSite: isProd ? 'none' : 'strict',
       path: '/auth',

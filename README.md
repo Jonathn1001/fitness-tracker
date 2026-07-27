@@ -46,12 +46,12 @@ A personal PWA for logging gym strength sessions and kickboxing rounds, with AI-
 | Package manager | pnpm 10                                         |
 
 ### Infrastructure
-| Concern          | Service              |
-| ---------------- | -------------------- |
-| Backend hosting  | Render (Web Service) |
-| Frontend hosting | Vercel               |
-| Database         | Render PostgreSQL    |
-| CI/CD            | GitHub Actions       |
+| Concern          | Service                          |
+| ---------------- | -------------------------------- |
+| Backend hosting  | Render (Web Service)             |
+| Frontend hosting | GitHub Pages                     |
+| Database         | Neon (external PostgreSQL)       |
+| CI/CD            | GitHub Actions (`master` branch) |
 
 ---
 
@@ -60,21 +60,22 @@ A personal PWA for logging gym strength sessions and kickboxing rounds, with AI-
 ```
 ┌─────────────────────────────────────────────────────┐
 │                   GitHub Actions                     │
-│   CI (PRs): build check both sides                  │
-│   Deploy (main): Render hook + Vercel CLI            │
+│   CI (PRs): lint + typecheck + test + build          │
+│   Deploy (master): builds and publishes to Pages     │
 └──────────────────┬──────────────────────────────────┘
-                   │
+                   │                  Render watches master
+                   │                  itself (autoDeploy)
        ┌───────────┴───────────┐
        ▼                       ▼
-┌─────────────┐         ┌─────────────┐
-│   Vercel    │         │   Render    │
-│  (React PWA)│◄───────►│  (NestJS)   │
-│             │  HTTPS  │             │
-└─────────────┘         └──────┬──────┘
+┌──────────────┐        ┌─────────────┐
+│ GitHub Pages │        │   Render    │
+│  (React PWA) │◄──────►│  (NestJS)   │
+│              │  HTTPS │             │
+└──────────────┘        └──────┬──────┘
                                │ Prisma
                          ┌─────▼──────┐
-                         │ PostgreSQL  │
-                         │  (Render)   │
+                         │ PostgreSQL │
+                         │   (Neon)   │
                          └────────────┘
 ```
 
