@@ -11,8 +11,20 @@ export class FeedbackService {
   ) {}
 
   async generate(userId: string) {
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 59, 999);
+
+    // Check the daily limit before calling Gemini. The unique constraint below
+    // is still the source of truth — it catches concurrent requests — but
+    // reaching it meant paying for and waiting on a generation we then threw
+    // away.
+    const alreadyGenerated = await this.prisma.aiFeedback.findFirst({
+      where: { userId, generatedAt: { gte: todayStart, lte: todayEnd } },
+      select: { id: true },
+    });
+    if (alreadyGenerated) throw this.rateLimited(todayEnd);
 
     const periodEnd = new Date();
     const periodStart = new Date();
@@ -67,16 +79,20 @@ export class FeedbackService {
         err instanceof Prisma.PrismaClientKnownRequestError &&
         err.code === 'P2002'
       ) {
-        throw new HttpException(
-          {
-            message: 'Rate limit: 1 feedback per day',
-            retry_after: todayEnd.toISOString(),
-          },
-          HttpStatus.TOO_MANY_REQUESTS,
-        );
+        throw this.rateLimited(todayEnd);
       }
       throw err;
     }
+  }
+
+  private rateLimited(todayEnd: Date) {
+    return new HttpException(
+      {
+        message: 'Rate limit: 1 feedback per day',
+        retry_after: todayEnd.toISOString(),
+      },
+      HttpStatus.TOO_MANY_REQUESTS,
+    );
   }
 
   async findAll(userId: string, page = 1, limit = 10) {
