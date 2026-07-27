@@ -62,15 +62,6 @@ export const upsertSets = (
     .put<SessionSet[]>(`/sessions/${sessionId}/sets`, sets)
     .then((r) => r.data)
 
-export const updateSet = (
-  sessionId: string,
-  setId: string,
-  body: { reps?: number; weightKg?: number; completed?: boolean },
-) =>
-  apiClient
-    .patch<SessionSet>(`/sessions/${sessionId}/sets/${setId}`, body)
-    .then((r) => r.data)
-
 export const upsertRounds = (
   sessionId: string,
   rounds: Array<{
@@ -84,13 +75,4 @@ export const upsertRounds = (
 ) =>
   apiClient
     .put<SessionRound[]>(`/sessions/${sessionId}/rounds`, rounds)
-    .then((r) => r.data)
-
-export const updateRound = (
-  sessionId: string,
-  roundId: string,
-  body: { completed?: boolean; qualityRating?: number; notes?: string },
-) =>
-  apiClient
-    .patch<SessionRound>(`/sessions/${sessionId}/rounds/${roundId}`, body)
     .then((r) => r.data)
