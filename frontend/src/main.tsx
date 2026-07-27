@@ -23,6 +23,9 @@ const drainQueue = () => {
       method: entry.method,
       url: entry.url,
       data: entry.body,
+      // Marks this as a replay so a failure falls through to replayQueue's
+      // own backoff instead of being queued a second time.
+      __isReplay: true,
     })
   })
 }

@@ -1,4 +1,5 @@
-import { defineConfig } from 'vite'
+// vitest/config re-exports vite's defineConfig with the `test` block typed.
+import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
@@ -44,5 +45,11 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },
+  },
+  test: {
+    environment: 'jsdom',
+    include: ['src/**/*.test.{ts,tsx}'],
+    // fake-indexeddb backs the offline queue tests; jsdom has no IndexedDB.
+    setupFiles: ['./src/test/setup.ts'],
   },
 })

@@ -4,7 +4,7 @@ import type { IDBPDatabase } from "idb";
 const DB_NAME = "fitness-offline";
 const STORE = "request-queue";
 
-interface QueueEntry {
+export interface QueueEntry {
   id: string;
   method: string;
   url: string;
@@ -12,8 +12,12 @@ interface QueueEntry {
   queuedAt: number;
 }
 
-async function getDB(): Promise<IDBPDatabase> {
-  return openDB(DB_NAME, 1, {
+// One shared connection. Opening a fresh one per operation leaked handles and
+// left the database permanently blocked against upgrades and deletes.
+let dbPromise: Promise<IDBPDatabase> | null = null;
+
+function getDB(): Promise<IDBPDatabase> {
+  dbPromise ??= openDB(DB_NAME, 1, {
     upgrade(db) {
       if (!db.objectStoreNames.contains(STORE)) {
         const store = db.createObjectStore(STORE, { keyPath: "id" });
@@ -21,6 +25,7 @@ async function getDB(): Promise<IDBPDatabase> {
       }
     },
   });
+  return dbPromise;
 }
 
 export const QUEUE_CHANGED = "queue-changed";
@@ -38,6 +43,17 @@ export async function enqueue(entry: Omit<QueueEntry, "queuedAt">) {
 export async function getQueueLength(): Promise<number> {
   const db = await getDB();
   return db.count(STORE);
+}
+
+/**
+ * Drop every queued mutation. Called on logout: a queued write carries no
+ * identity of its own, so replaying it after a different account signs in
+ * would file one user's sets against another's session.
+ */
+export async function clearQueue() {
+  const db = await getDB();
+  await db.clear(STORE);
+  emitChange();
 }
 
 export async function replayQueue(

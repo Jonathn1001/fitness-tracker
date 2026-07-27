@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useWeeklyPlan } from '../hooks/useWeeklyPlan'
 import { useSessions } from '../hooks/useSessions'
 import { logout } from '../api/auth'
+import { clearQueue } from '../offline/queue'
 import { useAuthStore } from '../store/auth'
 import { useThemeStore } from '../store/theme'
 import { decodeJwt, nameFromEmail } from '../lib/jwt'
@@ -58,6 +59,9 @@ export function ProfilePage() {
     } catch {
       // Best-effort: clear local state even if the server call fails.
     }
+    // Queued mutations carry no identity — replaying them after the next
+    // sign-in would file this user's sets against another account.
+    await clearQueue()
     clearToken()
     navigate('/login')
   }
