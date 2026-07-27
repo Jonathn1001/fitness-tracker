@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { isAxiosError } from 'axios'
+import { apiErrorMessage } from '../lib/apiError'
 import { useFeedback } from '../hooks/useFeedback'
 import { generateFeedback } from '../api/feedback'
 import { useQueryClient } from '@tanstack/react-query'
@@ -29,7 +30,7 @@ export function FeedbackPage() {
         setError('You already generated a review today. Try again tomorrow.')
         setCooldown(24 * 60 * 60)
       } else {
-        setError('Failed to generate review. Try again later.')
+        setError(apiErrorMessage(err, 'Failed to generate review.'))
       }
     } finally {
       setGenerating(false)

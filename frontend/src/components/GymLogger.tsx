@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { upsertSets, completeSession } from '../api/sessions'
+import { apiErrorMessage } from '../lib/apiError'
 import { Icon } from './ui/Icon'
 
 interface Exercise {
@@ -32,6 +33,7 @@ export function GymLogger({ sessionId, exercises }: Props) {
   const navigate = useNavigate()
   const [openEx, setOpenEx] = useState<string | null>(exercises[0]?.id ?? null)
   const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
 
   const [setsByExercise, setSetsByExercise] = useState<
     Record<string, SetEntry[]>
@@ -87,6 +89,7 @@ export function GymLogger({ sessionId, exercises }: Props) {
 
   const handleFinish = async () => {
     setSaving(true)
+    setError('')
     try {
       const payload = exercises.flatMap((ex) =>
         setsByExercise[ex.id].map((s) => ({
@@ -103,6 +106,10 @@ export function GymLogger({ sessionId, exercises }: Props) {
       qc.invalidateQueries({ queryKey: ['session', sessionId] })
       qc.invalidateQueries({ queryKey: ['sessions'] })
       navigate('/')
+    } catch (err) {
+      // Without this the promise rejected unhandled: the button re-enabled,
+      // nothing was said, and the session looked unsaved with no explanation.
+      setError(apiErrorMessage(err, 'Could not save this session.'))
     } finally {
       setSaving(false)
     }
@@ -224,6 +231,7 @@ export function GymLogger({ sessionId, exercises }: Props) {
 
       {/* Finish */}
       <div className="sticky-finish">
+        {error && <p className="error-msg">{error}</p>}
         <button
           className="btn primary full"
           onClick={handleFinish}

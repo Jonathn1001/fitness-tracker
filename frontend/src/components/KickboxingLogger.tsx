@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { upsertRounds, completeSession } from '../api/sessions'
+import { apiErrorMessage } from '../lib/apiError'
 import { Icon } from './ui/Icon'
 
 interface Round {
@@ -28,6 +29,7 @@ export function KickboxingLogger({ sessionId, rounds }: Props) {
   const qc = useQueryClient()
   const navigate = useNavigate()
   const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
 
   const [entries, setEntries] = useState<RoundEntry[]>(() =>
     rounds.map((r) => ({
@@ -54,12 +56,15 @@ export function KickboxingLogger({ sessionId, rounds }: Props) {
 
   const handleFinish = async () => {
     setSaving(true)
+    setError('')
     try {
       await upsertRounds(sessionId, entries)
       await completeSession(sessionId)
       qc.invalidateQueries({ queryKey: ['session', sessionId] })
       qc.invalidateQueries({ queryKey: ['sessions'] })
       navigate('/')
+    } catch (err) {
+      setError(apiErrorMessage(err, 'Could not save this session.'))
     } finally {
       setSaving(false)
     }
@@ -160,6 +165,7 @@ export function KickboxingLogger({ sessionId, rounds }: Props) {
 
       {/* Finish */}
       <div className="sticky-finish">
+        {error && <p className="error-msg">{error}</p>}
         <button
           className="btn primary full"
           onClick={handleFinish}

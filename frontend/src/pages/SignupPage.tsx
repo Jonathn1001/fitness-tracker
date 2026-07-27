@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { isAxiosError } from 'axios'
 import { useNavigate, Link } from 'react-router-dom'
 import { signup } from '../api/auth'
+import { apiErrorMessage } from '../lib/apiError'
 import { useAuthStore } from '../store/auth'
 
 export function SignupPage() {
@@ -22,10 +22,7 @@ export function SignupPage() {
       setToken(data.accessToken)
       navigate('/')
     } catch (err) {
-      const message = isAxiosError(err)
-        ? (err.response?.data as { message?: string } | undefined)?.message
-        : undefined
-      setError(message ?? 'Signup failed')
+      setError(apiErrorMessage(err, 'Signup failed'))
     } finally {
       setLoading(false)
     }

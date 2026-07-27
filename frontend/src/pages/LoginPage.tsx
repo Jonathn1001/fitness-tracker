@@ -20,6 +20,9 @@ export function LoginPage() {
       setToken(data.accessToken)
       navigate('/')
     } catch {
+      // Deliberately not surfacing the server's message: distinguishing
+      // "no such account" from "wrong password" tells an attacker which
+      // emails are registered.
       setError('Invalid email or password')
     } finally {
       setLoading(false)
