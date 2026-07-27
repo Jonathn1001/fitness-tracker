@@ -60,10 +60,17 @@ export function SignupPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              minLength={8}
+              minLength={10}
+              pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{10,}"
+              title="At least 10 characters, with an uppercase letter, a lowercase letter and a digit"
               required
               autoComplete="new-password"
+              aria-describedby="password-hint"
             />
+            {/* Mirrors SignupDto on the API: MinLength(10) + upper + lower + digit. */}
+            <p id="password-hint" className="dim" style={{ fontSize: 12, marginTop: 6 }}>
+              At least 10 characters, with an uppercase letter, a lowercase letter and a digit.
+            </p>
           </div>
           {error && <p className="error">{error}</p>}
           <button type="submit" className="btn primary full" disabled={loading}>

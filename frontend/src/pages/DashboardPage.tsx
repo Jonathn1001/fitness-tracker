@@ -4,6 +4,8 @@ import { v4 as uuidv4 } from 'uuid'
 import { useWeeklyPlan } from '../hooks/useWeeklyPlan'
 import { useSessions } from '../hooks/useSessions'
 import { createSession } from '../api/sessions'
+import { useAuthStore } from '../store/auth'
+import { decodeJwt, nameFromEmail } from '../lib/jwt'
 import { Topbar } from '../components/Topbar'
 import { Icon, Pill } from '../components/ui/Icon'
 import type { TemplateDay } from '../api/types'
@@ -38,6 +40,10 @@ export function DashboardPage() {
   const { data: plan } = useWeeklyPlan()
   const { data: recent } = useSessions({ limit: 14 })
   const [starting, setStarting] = useState(false)
+
+  const accessToken = useAuthStore((s) => s.accessToken)
+  const email = decodeJwt(accessToken)?.email ?? ''
+  const displayName = email ? nameFromEmail(email) : 'Coach'
 
   const dow = todayDow()
   const today = plan?.days?.find((d) => d.dayOfWeek === dow)
@@ -90,7 +96,7 @@ export function DashboardPage() {
   return (
     <>
       <Topbar
-        title={`${greeting()}, Sang`}
+        title={`${greeting()}, ${displayName}`}
         sub={dateLong}
         right={
           <button className="iconbtn ghost" onClick={() => navigate('/profile')} aria-label="Profile">
