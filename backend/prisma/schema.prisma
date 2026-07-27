@@ -106,6 +106,7 @@ model WorkoutTemplate {
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   templateDays TemplateDay[]
 
+  @@index([userId])
   @@map("workout_templates")
 }
 
@@ -137,6 +138,8 @@ model TemplateExercise {
   templateDay TemplateDay     @relation(fields: [templateDayId], references: [id], onDelete: Cascade)
   exercise    ExerciseLibrary @relation(fields: [exerciseId], references: [id])
 
+  @@index([templateDayId])
+  @@index([exerciseId])
   @@map("template_exercises")
 }
 
@@ -149,6 +152,8 @@ model TemplateRound {
   templateDay TemplateDay      @relation(fields: [templateDayId], references: [id], onDelete: Cascade)
   roundType   RoundTypeLibrary @relation(fields: [roundTypeId], references: [id])
 
+  @@index([templateDayId])
+  @@index([roundTypeId])
   @@map("template_rounds")
 }
 
@@ -173,6 +178,7 @@ model Session {
 
   @@index([userId, date])
   @@index([userId, status])
+  @@index([templateDayId])
   @@map("sessions")
 }
 
@@ -189,6 +195,8 @@ model SessionSet {
   session  Session         @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   exercise ExerciseLibrary @relation(fields: [exerciseId], references: [id])
 
+  @@index([sessionId])
+  @@index([exerciseId])
   @@map("session_sets")
 }
 
@@ -205,6 +213,8 @@ model SessionRound {
   session   Session          @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   roundType RoundTypeLibrary @relation(fields: [roundTypeId], references: [id])
 
+  @@index([sessionId])
+  @@index([roundTypeId])
   @@map("session_rounds")
 }
 
