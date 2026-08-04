@@ -16,6 +16,7 @@ describe('SessionsService', () => {
     session: {
       findUnique: jest.Mock;
       create: jest.Mock;
+      update: jest.Mock;
     };
     templateDay: {
       findUnique: jest.Mock;
@@ -30,6 +31,7 @@ describe('SessionsService', () => {
       session: {
         findUnique: jest.fn(),
         create: jest.fn(),
+        update: jest.fn(),
       },
       templateDay: {
         findUnique: jest.fn(),
@@ -126,6 +128,74 @@ describe('SessionsService', () => {
       prisma.session.create.mockResolvedValue(created);
 
       await expect(service.create(userId, dto)).resolves.toBe(created);
+    });
+  });
+
+  describe('update — warmup rule', () => {
+    const sessionId = 's1';
+
+    const ownedSession = (templateDayId: string | null) => ({
+      id: sessionId,
+      userId,
+      templateDayId,
+    });
+
+    it('rejects warmup fields when the session sits on a kickboxing day', async () => {
+      prisma.session.findUnique.mockResolvedValue(ownedSession('day-1'));
+      prisma.templateDay.findUnique.mockResolvedValue({
+        workoutType: 'kickboxing',
+      });
+
+      await expect(
+        service.update(userId, sessionId, { warmupDurationMin: 8 }),
+      ).rejects.toMatchObject({ status: 400 });
+      expect(prisma.session.update).not.toHaveBeenCalled();
+    });
+
+    it('allows warmup fields on a gym day', async () => {
+      prisma.session.findUnique.mockResolvedValue(ownedSession('day-1'));
+      prisma.templateDay.findUnique.mockResolvedValue({ workoutType: 'gym' });
+      const updated = { id: sessionId, warmupDurationMin: 8 };
+      prisma.session.update.mockResolvedValue(updated);
+
+      await expect(
+        service.update(userId, sessionId, { warmupDurationMin: 8 }),
+      ).resolves.toBe(updated);
+    });
+
+    it('allows non-warmup fields on a kickboxing day without loading the day', async () => {
+      prisma.session.findUnique.mockResolvedValue(ownedSession('day-1'));
+      const updated = { id: sessionId, notes: 'felt strong' };
+      prisma.session.update.mockResolvedValue(updated);
+
+      await expect(
+        service.update(userId, sessionId, { notes: 'felt strong' }),
+      ).resolves.toBe(updated);
+      expect(prisma.templateDay.findUnique).not.toHaveBeenCalled();
+    });
+
+    it('allows warmup fields on an ad-hoc session with no template day', async () => {
+      prisma.session.findUnique.mockResolvedValue(ownedSession(null));
+      const updated = { id: sessionId, warmupType: 'walk' };
+      prisma.session.update.mockResolvedValue(updated);
+
+      await expect(
+        service.update(userId, sessionId, { warmupType: 'walk' }),
+      ).resolves.toBe(updated);
+      expect(prisma.templateDay.findUnique).not.toHaveBeenCalled();
+    });
+
+    it('throws NotFoundException when the session belongs to another user', async () => {
+      prisma.session.findUnique.mockResolvedValue({
+        id: sessionId,
+        userId: otherUserId,
+        templateDayId: null,
+      });
+
+      await expect(
+        service.update(userId, sessionId, { notes: 'x' }),
+      ).rejects.toBeInstanceOf(NotFoundException);
+      expect(prisma.session.update).not.toHaveBeenCalled();
     });
   });
 });

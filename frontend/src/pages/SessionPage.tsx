@@ -6,7 +6,7 @@ import { KickboxingLogger } from '../components/KickboxingLogger'
 import { deleteSession, updateSession } from '../api/sessions'
 import { Topbar } from '../components/Topbar'
 import { Icon, Pill } from '../components/ui/Icon'
-import { TYPE_COLOR, TYPE_LABEL } from '../lib/workoutMeta'
+import { TYPE_COLOR, TYPE_LABEL, workoutLabel } from '../lib/workoutMeta'
 
 export function SessionPage() {
   const { id } = useParams<{ id: string }>()
@@ -21,7 +21,9 @@ export function SessionPage() {
     return (
       <>
         <Topbar title="Loading…" onBack={() => navigate('/')} />
-        <p className="dim" style={{ fontSize: 13, padding: '0 var(--pad)' }}>Please wait.</p>
+        <p className="dim" style={{ fontSize: 13, padding: '0 var(--pad)' }}>
+          Please wait.
+        </p>
       </>
     )
   }
@@ -31,13 +33,16 @@ export function SessionPage() {
       <>
         <Topbar title="Session not found" onBack={() => navigate('/')} />
         <div style={{ padding: '0 var(--pad)' }}>
-          <button className="btn ghost-dark full" onClick={() => navigate('/')}>← Dashboard</button>
+          <button className="btn ghost-dark full" onClick={() => navigate('/')}>
+            ← Dashboard
+          </button>
         </div>
       </>
     )
   }
 
-  const workoutType = (session.templateDay?.workoutType ?? 'gym') as 'gym' | 'kickboxing'
+  const workoutType = (session.templateDay?.workoutType ?? 'gym') as
+    'gym' | 'kickboxing'
   const isKickbox = workoutType === 'kickboxing'
 
   const handleDiscard = async () => {
@@ -46,14 +51,16 @@ export function SessionPage() {
     navigate('/')
   }
 
-  const exercises = (session.templateDay?.templateExercises ?? []).map((te) => ({
-    id: te.exercise.id,
-    name: te.exercise.name,
-    muscleGroup: te.exercise.muscleGroup,
-    defaultSets: te.defaultSets,
-    defaultReps: te.defaultReps,
-    defaultWeightKg: te.defaultWeightKg,
-  }))
+  const exercises = (session.templateDay?.templateExercises ?? []).map(
+    (te) => ({
+      id: te.exercise.id,
+      name: te.exercise.name,
+      muscleGroup: te.exercise.muscleGroup,
+      defaultSets: te.defaultSets,
+      defaultReps: te.defaultReps,
+      defaultWeightKg: te.defaultWeightKg,
+    }),
+  )
 
   const rounds = (session.templateDay?.templateRounds ?? []).map((tr) => ({
     id: tr.id,
@@ -61,9 +68,7 @@ export function SessionPage() {
     roundType: tr.roundType,
   }))
 
-  const title = isKickbox
-    ? 'Heavy Bag'
-    : Array.from(new Set(exercises.map((e) => e.muscleGroup))).slice(0, 2).join(' · ') || 'Workout'
+  const title = workoutLabel(session.templateDay, 'Workout')
 
   const sub = `${TYPE_LABEL[workoutType]} · ${new Date(session.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}`
 
@@ -71,15 +76,31 @@ export function SessionPage() {
     return (
       <>
         <Topbar title={title} sub={sub} onBack={() => navigate('/history')} />
-        <div className="card" style={{ margin: '0 0 18px', padding: 32, textAlign: 'center' }}>
-          <Pill color={TYPE_COLOR[workoutType]}>{TYPE_LABEL[workoutType]} · completed</Pill>
-          <h2 style={{ fontSize: 32, fontWeight: 800, letterSpacing: '-0.02em', margin: '16px 0 8px' }}>
+        <div
+          className="card"
+          style={{ margin: '0 0 18px', padding: 32, textAlign: 'center' }}
+        >
+          <Pill color={TYPE_COLOR[workoutType]}>
+            {TYPE_LABEL[workoutType]} · completed
+          </Pill>
+          <h2
+            style={{
+              fontSize: 32,
+              fontWeight: 800,
+              letterSpacing: '-0.02em',
+              margin: '16px 0 8px',
+            }}
+          >
             Session complete
           </h2>
           <p className="dim" style={{ fontSize: 13 }}>
             Your data is saved — review it any time from History or Progress.
           </p>
-          <button className="btn ghost-dark full" style={{ marginTop: 20 }} onClick={() => navigate('/history')}>
+          <button
+            className="btn ghost-dark full"
+            style={{ marginTop: 20 }}
+            onClick={() => navigate('/history')}
+          >
             View history
           </button>
         </div>
@@ -94,7 +115,11 @@ export function SessionPage() {
         sub={sub}
         onBack={() => navigate('/')}
         right={
-          <button className="iconbtn ghost" onClick={handleDiscard} aria-label="Discard">
+          <button
+            className="iconbtn ghost"
+            onClick={handleDiscard}
+            aria-label="Discard"
+          >
             <Icon name="more" size={20} />
           </button>
         }
@@ -102,8 +127,18 @@ export function SessionPage() {
 
       {!isKickbox && (
         <div className="seg">
-          <button className={tab === 'warmup' ? 'on' : ''} onClick={() => setTab('warmup')}>Warmup</button>
-          <button className={tab === 'lifts'  ? 'on' : ''} onClick={() => setTab('lifts')}>Lifts</button>
+          <button
+            className={tab === 'warmup' ? 'on' : ''}
+            onClick={() => setTab('warmup')}
+          >
+            Warmup
+          </button>
+          <button
+            className={tab === 'lifts' ? 'on' : ''}
+            onClick={() => setTab('lifts')}
+          >
+            Lifts
+          </button>
         </div>
       )}
 
@@ -111,16 +146,35 @@ export function SessionPage() {
         <div className="card warmup-card">
           <div className="warmup-row">
             <div className="warmup-toggle">
-              <button className={warmupKind === 'walk' ? 'on' : ''} onClick={() => setWarmupKind('walk')}>Walk</button>
-              <button className={warmupKind === 'run'  ? 'on' : ''} onClick={() => setWarmupKind('run')}>Run</button>
+              <button
+                className={warmupKind === 'walk' ? 'on' : ''}
+                onClick={() => setWarmupKind('walk')}
+              >
+                Walk
+              </button>
+              <button
+                className={warmupKind === 'run' ? 'on' : ''}
+                onClick={() => setWarmupKind('run')}
+              >
+                Run
+              </button>
             </div>
           </div>
           <div className="warmup-min">
-            <button className="iconbtn" onClick={() => setWarmupMin((m) => Math.max(0, m - 1))}>
+            <button
+              className="iconbtn"
+              onClick={() => setWarmupMin((m) => Math.max(0, m - 1))}
+            >
               <Icon name="minus" size={18} />
             </button>
-            <div className="big-num">{warmupMin}<span className="unit">min</span></div>
-            <button className="iconbtn" onClick={() => setWarmupMin((m) => m + 1)}>
+            <div className="big-num">
+              {warmupMin}
+              <span className="unit">min</span>
+            </div>
+            <button
+              className="iconbtn"
+              onClick={() => setWarmupMin((m) => m + 1)}
+            >
               <Icon name="plus" size={18} />
             </button>
           </div>
@@ -130,7 +184,13 @@ export function SessionPage() {
             placeholder="Session notes (optional)"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            onBlur={() => updateSession(id!, { notes, warmupType: warmupKind, warmupDurationMin: warmupMin })}
+            onBlur={() =>
+              updateSession(id!, {
+                notes,
+                warmupType: warmupKind,
+                warmupDurationMin: warmupMin,
+              })
+            }
           />
           <button className="btn primary full" onClick={() => setTab('lifts')}>
             Done — start lifting
@@ -138,13 +198,11 @@ export function SessionPage() {
         </div>
       )}
 
-      {(!isKickbox && tab === 'lifts') && (
+      {!isKickbox && tab === 'lifts' && (
         <GymLogger sessionId={session.id} exercises={exercises} />
       )}
 
-      {isKickbox && (
-        <KickboxingLogger sessionId={session.id} rounds={rounds} />
-      )}
+      {isKickbox && <KickboxingLogger sessionId={session.id} rounds={rounds} />}
     </>
   )
 }

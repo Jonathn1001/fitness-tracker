@@ -15,9 +15,18 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Backend deploys itself: Render watches master via render.yaml (autoDeploy).
+  # Gate. CI only runs on pull_request, so without this a direct push to
+  # master — or a merge that raced another — published unverified code.
+  checks:
+    name: Checks
+    uses: ./.github/workflows/checks.yml
+
+  # Backend deploys itself: Render watches master via render.yaml (autoDeploy),
+  # which means the backend ships regardless of the result of this workflow.
+  # See docs note in render.yaml.
   deploy-frontend:
     name: Deploy frontend to GitHub Pages
+    needs: checks
     runs-on: ubuntu-latest
     environment:
       name: github-pages
