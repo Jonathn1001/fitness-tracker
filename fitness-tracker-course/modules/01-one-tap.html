@@ -1,0 +1,236 @@
+    <section class="module" id="module-1" style="background: var(--color-bg-warm)">
+      <div class="module-content">
+        <header class="module-header animate-in">
+          <span class="module-number">01</span>
+          <h1 class="module-title">One Tap, Many Moving Parts</h1>
+          <p class="module-subtitle">You tap "finish". Six pieces of software wake up. Here is the whole relay, end to end.</p>
+        </header>
+
+        <div class="module-body">
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">First — what is this thing?</h2>
+            <p>It is a workout journal you install on your phone — technically a <span class="term" data-definition="PWA stands for Progressive Web App: a website built so it can be installed on a phone like a normal app, with its own icon, and keep working without a connection. No app store involved.">PWA</span>. You log gym sets and kickboxing rounds, and an AI writes you a training review every couple of weeks.</p>
+            <div class="icon-rows stagger-children">
+              <div class="icon-row animate-in">
+                <div class="icon-circle" style="background: var(--color-actor-1)">💪</div>
+                <div>
+                  <strong>Gym logging</strong>
+                  <p>Every set you do: which exercise, how many reps, how much weight.</p>
+                </div>
+              </div>
+              <div class="icon-row animate-in">
+                <div class="icon-circle" style="background: var(--color-actor-2)">🥊</div>
+                <div>
+                  <strong>Kickboxing rounds</strong>
+                  <p>Each round gets a quality score from 1 to 5, so bad days are visible later.</p>
+                </div>
+              </div>
+              <div class="icon-row animate-in">
+                <div class="icon-circle" style="background: var(--color-actor-3)">🤖</div>
+                <div>
+                  <strong>AI training review</strong>
+                  <p>Your last 14 days get sent to Google's Gemini model, which writes back a coach-style summary.</p>
+                </div>
+              </div>
+              <div class="icon-row animate-in">
+                <div class="icon-circle" style="background: var(--color-actor-4)">📶</div>
+                <div>
+                  <strong>Works in a basement gym</strong>
+                  <p>No signal? Your sets are saved on the phone and sent up the moment the bars come back.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">The relay race</h2>
+            <p>Think of your tap as a baton in a relay. Each runner carries it a short distance and hands it to the next — nobody runs the whole track. Software is built the same way, and for the same reason: each runner can be swapped out without retraining the team.</p>
+            <div class="callout callout-accent">
+              <div class="callout-icon">💡</div>
+              <div class="callout-content">
+                <strong class="callout-title">Why anyone should care</strong>
+                <p>When something breaks, the useful question is never "the app is broken" — it is "which runner dropped the baton?" Knowing the legs of the race is what turns a vague bug report into a fixable one.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Watch the baton move</h2>
+            <p>You just finished a bench press set and tapped save. Step through what happens.</p>
+            <div class="flow-animation" data-steps='[
+              {"highlight":"flow-actor-1","label":"You tap Save. The screen you are looking at is a React app running inside your phone browser."},
+              {"highlight":"flow-actor-1","label":"The app packages your set as JSON — a plain-text format for structured data: exercise, reps, weight.","packet":true,"from":"actor-1","to":"actor-2"},
+              {"highlight":"flow-actor-2","label":"The API receives it. First job: check the request looks legal and that this set belongs to you."},
+              {"highlight":"flow-actor-2","label":"The API asks Prisma to write the row.","packet":true,"from":"actor-2","to":"actor-3"},
+              {"highlight":"flow-actor-3","label":"Prisma turns that request into SQL — the language databases actually speak."},
+              {"highlight":"flow-actor-3","label":"Postgres stores the row on disk and confirms.","packet":true,"from":"actor-3","to":"actor-4"},
+              {"highlight":"flow-actor-4","label":"Neon is the Postgres database, hosted far away from your phone. Your set now exists somewhere permanent."},
+              {"highlight":"flow-actor-1","label":"The answer travels back the same way, and the number on your screen updates. Total round trip: a fraction of a second."}
+            ]'>
+              <div class="flow-actors">
+                <div class="flow-actor" id="flow-actor-1">
+                  <div class="flow-actor-icon">📱</div>
+                  <span>React app</span>
+                </div>
+                <div class="flow-actor" id="flow-actor-2">
+                  <div class="flow-actor-icon">⚙️</div>
+                  <span>NestJS API</span>
+                </div>
+
+                <div class="flow-actor" id="flow-actor-3">
+                  <div class="flow-actor-icon">🔌</div>
+                  <span>Prisma</span>
+                </div>
+                <div class="flow-actor" id="flow-actor-4">
+                  <div class="flow-actor-icon">🗄️</div>
+                  <span>Postgres</span>
+                </div>
+              </div>
+
+              <div class="flow-packet" id="flow-packet"></div>
+
+              <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+
+              <div class="flow-controls">
+                <button class="btn flow-next-btn">Next Step</button>
+                <button class="btn flow-reset-btn">Restart</button>
+                <span class="flow-progress"></span>
+              </div>
+            </div>
+            <div class="badge-list">
+              <div class="badge-item">
+                <code class="badge-code">React</code>
+                <span class="badge-desc">The <span class="term" data-definition="A library is a bundle of pre-written code you pull into your project so you do not have to build common things yourself. React is the one that handles drawing and updating the screen.">library</span> that draws the screen and redraws it when data changes.</span>
+              </div>
+              <div class="badge-item">
+                <code class="badge-code">NestJS</code>
+                <span class="badge-desc">The <span class="term" data-definition="A framework is a skeleton for an application — it decides the overall shape and file structure, and you fill in the parts specific to your app. NestJS is the skeleton this backend is built on.">framework</span> the backend is built on. It receives requests and decides what to do with them.</span>
+              </div>
+              <div class="badge-item">
+                <code class="badge-code">Prisma</code>
+                <span class="badge-desc">An <span class="term" data-definition="ORM stands for Object-Relational Mapper. It is a translator: you write instructions in your normal programming language, and it converts them into SQL — the language databases speak. It also stops a whole class of attacks by never gluing your text directly into a database command.">ORM</span> — a translator between the code and the database.</span>
+              </div>
+              <div class="badge-item">
+                <code class="badge-code">Postgres</code>
+                <span class="badge-desc">The <span class="term" data-definition="A database is a program whose only job is to store data safely and find it again fast. Postgres is a popular free one; think of a filing system that survives power cuts and never loses a row.">database</span> itself, rented from a company called Neon.</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">The first leg, in real code</h2>
+            <p>This is the actual function the app calls to start a workout. Nine lines, and every one of them earns its place.</p>
+            <div class="translation-block animate-in">
+              <div class="translation-code">
+                <span class="translation-label">CODE</span>
+                <pre><code>
+<span class="code-line"><span class="code-keyword">export const</span> <span class="code-function">createSession</span> = (body: {</span>
+<span class="code-line">  <span class="code-property">templateDayId</span>?: <span class="code-keyword">string</span></span>
+<span class="code-line">  <span class="code-property">date</span>: <span class="code-keyword">string</span></span>
+<span class="code-line">  <span class="code-property">warmupType</span>?: WarmupType</span>
+<span class="code-line">  <span class="code-property">warmupDurationMin</span>?: <span class="code-keyword">number</span></span>
+<span class="code-line">  <span class="code-property">notes</span>?: <span class="code-keyword">string</span></span>
+<span class="code-line">  <span class="code-property">idempotencyKey</span>: <span class="code-keyword">string</span></span>
+<span class="code-line">}) =&gt; apiClient.<span class="code-function">post</span>&lt;SessionDetail&gt;(<span class="code-string">'/sessions'</span>, body).<span class="code-function">then</span>((r) =&gt; r.data)</span>
+                </code></pre>
+              </div>
+              <div class="translation-english">
+                <span class="translation-label">PLAIN ENGLISH</span>
+                <div class="translation-lines">
+                  <p class="tl">"Here is a job called <em>createSession</em>. Give it a workout, and it will start one."</p>
+                  <p class="tl">The question marks mean optional — you can start a workout without saying which planned day it belongs to.</p>
+                  <p class="tl">The date is <em>not</em> optional. A workout with no date is useless on a progress chart.</p>
+                  <p class="tl">Warmup type is limited to walk or run. Not "treadmill", not "bike" — the list of allowed answers is fixed elsewhere and enforced.</p>
+                  <p class="tl">Duration in minutes, notes in your own words. Both optional.</p>
+                  <p class="tl">This one is the interesting one: a unique ticket number for this exact workout. Module 5 explains why it is what stops a bad signal from creating four identical workouts.</p>
+                  <p class="tl">Send all of that to the address <code>/sessions</code> on the server, then hand back whatever the server replies.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Two programs, not one</h2>
+            <p>The single most useful thing to understand about this app: it is <em>two separate programs</em> that talk over the internet through an <span class="term" data-definition="An API (Application Programming Interface) is the fixed set of requests one program agrees to answer for another. Like a menu of things you are allowed to ask for, and the exact wording each request must use.">API</span>. They are written in different folders, <span class="term" data-definition="Deploying means copying your finished code onto a computer somewhere on the internet and starting it, so other people can use it. Until you deploy, the app only exists on your own machine.">deployed</span> to different companies, and either can be replaced without touching the other.</p>
+            <div class="pattern-cards stagger-children">
+              <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-1)">
+                <div class="pattern-icon" style="background: var(--color-actor-1)">📱</div>
+                <h4 class="pattern-title">frontend/</h4>
+                <p class="pattern-desc">Runs on <em>your phone</em>. Draws buttons, reacts to taps. Anyone can read this code — it is downloaded to the device. Hosted on GitHub Pages.</p>
+              </div>
+              <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+                <div class="pattern-icon" style="background: var(--color-actor-2)">⚙️</div>
+                <h4 class="pattern-title">backend/</h4>
+                <p class="pattern-desc">Runs on <em>a rented computer</em> at Render. Holds the rules, the passwords, the AI key. Nobody can read this code from outside.</p>
+              </div>
+              <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-4)">
+                <div class="pattern-icon" style="background: var(--color-actor-4)">🗄️</div>
+                <h4 class="pattern-title">Neon Postgres</h4>
+                <p class="pattern-desc">A database in a third place again. It remembers everything after the phone is closed and the server restarts.</p>
+              </div>
+            </div>
+            <div class="callout callout-info">
+              <div class="callout-icon">🔑</div>
+              <div class="callout-content">
+                <strong class="callout-title">Say this to an AI assistant</strong>
+                <p>"Put that logic in the backend, not the frontend — it must not be visible to the client." That one sentence prevents a whole category of security mistakes, and it only makes sense once you see the split above.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Think it through</h2>
+            <div class="quiz-container" id="quiz-module1">
+              <div class="quiz-question-block"
+                   data-correct="opt-backend"
+                   data-explanation-right="Right. The phone is a device you hand to a stranger at the gym; the key would ship inside the downloaded app and could be read out of it. Secrets belong on a machine only you control."
+                   data-explanation-wrong="Think about where the code physically runs. The frontend is downloaded onto every user's phone — anything inside it, including a key, can be read straight out of the app.">
+                <h3 class="quiz-question">You want to add a second AI feature. Where should the API key for it live?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-frontend" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>In the frontend, so the phone can call the AI directly and skip a hop</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-backend" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>In the backend, and the phone asks the backend to make the call</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-db" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>In the database, so both sides can read it</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <div class="quiz-question-block"
+                   data-correct="opt-two"
+                   data-explanation-right="Exactly. Your set reached the API and the API answered — the round trip worked. What failed is the leg between the API and the database, so that is where to look first."
+                   data-explanation-wrong="Re-read the symptom: the app got an error message back. Something answered it. A dead phone connection or a dead server produces silence or a timeout, not a tidy error message.">
+                <h3 class="quiz-question">A friend reports: "I tap save, and after a second I get an error saying something went wrong." Where is the most likely broken leg of the relay?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-one" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Their phone lost signal</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-two" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Somewhere past the API — the database write is failing</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-three" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>The button is wired to the wrong function</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+              <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </section>

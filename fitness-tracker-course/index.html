@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inside the Fitness Tracker</title>
+
+  <!-- Google Fonts: Bricolage Grotesque · DM Sans · JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    :root {
+      --color-accent:       #D94F30;
+      --color-accent-hover: #C4432A;
+      --color-accent-light: #FDEEE9;
+      --color-accent-muted: #E8836C;
+    }
+  </style>
+
+  <script src="main.js" defer></script>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div class="nav-inner">
+      <span class="nav-title">Inside the Fitness Tracker</span>
+      <div class="nav-dots" id="nav-dots" role="tablist">
+        <button class="nav-dot" data-target="module-1" data-tooltip="One Tap, Many Moving Parts" role="tab" aria-label="Module 1: One Tap, Many Moving Parts"></button>
+        <button class="nav-dot" data-target="module-2" data-tooltip="The Cast" role="tab" aria-label="Module 2: The Cast"></button>
+        <button class="nav-dot" data-target="module-3" data-tooltip="How They Talk" role="tab" aria-label="Module 3: How They Talk"></button>
+        <button class="nav-dot" data-target="module-4" data-tooltip="Proving Who You Are" role="tab" aria-label="Module 4: Proving Who You Are"></button>
+        <button class="nav-dot" data-target="module-5" data-tooltip="When The Signal Dies" role="tab" aria-label="Module 5: When The Signal Dies"></button>
+        <button class="nav-dot" data-target="module-6" data-tooltip="Shipping It" role="tab" aria-label="Module 6: Shipping It"></button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+    <!-- modules/*.html content is assembled here by build.sh -->
+    <section class="module" id="module-1" style="background: var(--color-bg-warm)">
+      <div class="module-content">
+        <header class="module-header animate-in">
+          <span class="module-number">01</span>
+          <h1 class="module-title">One Tap, Many Moving Parts</h1>
+          <p class="module-subtitle">You tap "finish". Six pieces of software wake up. Here is the whole relay, end to end.</p>
+        </header>
+
+        <div class="module-body">
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">First — what is this thing?</h2>
+            <p>It is a workout journal you install on your phone — technically a <span class="term" data-definition="PWA stands for Progressive Web App: a website built so it can be installed on a phone like a normal app, with its own icon, and keep working without a connection. No app store involved.">PWA</span>. You log gym sets and kickboxing rounds, and an AI writes you a training review every couple of weeks.</p>
+            <div class="icon-rows stagger-children">
+              <div class="icon-row animate-in">
+                <div class="icon-circle" style="background: var(--color-actor-1)">💪</div>
+                <div>
+                  <strong>Gym logging</strong>
+                  <p>Every set you do: which exercise, how many reps, how much weight.</p>
+                </div>
+              </div>
+              <div class="icon-row animate-in">
+                <div class="icon-circle" style="background: var(--color-actor-2)">🥊</div>
+                <div>
+                  <strong>Kickboxing rounds</strong>
+                  <p>Each round gets a quality score from 1 to 5, so bad days are visible later.</p>
+                </div>
+              </div>
+              <div class="icon-row animate-in">
+                <div class="icon-circle" style="background: var(--color-actor-3)">🤖</div>
+                <div>
+                  <strong>AI training review</strong>
+                  <p>Your last 14 days get sent to Google's Gemini model, which writes back a coach-style summary.</p>
+                </div>
+              </div>
+              <div class="icon-row animate-in">
+                <div class="icon-circle" style="background: var(--color-actor-4)">📶</div>
+                <div>
+                  <strong>Works in a basement gym</strong>
+                  <p>No signal? Your sets are saved on the phone and sent up the moment the bars come back.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">The relay race</h2>
+            <p>Think of your tap as a baton in a relay. Each runner carries it a short distance and hands it to the next — nobody runs the whole track. Software is built the same way, and for the same reason: each runner can be swapped out without retraining the team.</p>
+            <div class="callout callout-accent">
+              <div class="callout-icon">💡</div>
+              <div class="callout-content">
+                <strong class="callout-title">Why anyone should care</strong>
+                <p>When something breaks, the useful question is never "the app is broken" — it is "which runner dropped the baton?" Knowing the legs of the race is what turns a vague bug report into a fixable one.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Watch the baton move</h2>
+            <p>You just finished a bench press set and tapped save. Step through what happens.</p>
+            <div class="flow-animation" data-steps='[
+              {"highlight":"flow-actor-1","label":"You tap Save. The screen you are looking at is a React app running inside your phone browser."},
+              {"highlight":"flow-actor-1","label":"The app packages your set as JSON — a plain-text format for structured data: exercise, reps, weight.","packet":true,"from":"actor-1","to":"actor-2"},
+              {"highlight":"flow-actor-2","label":"The API receives it. First job: check the request looks legal and that this set belongs to you."},
+              {"highlight":"flow-actor-2","label":"The API asks Prisma to write the row.","packet":true,"from":"actor-2","to":"actor-3"},
+              {"highlight":"flow-actor-3","label":"Prisma turns that request into SQL — the language databases actually speak."},
+              {"highlight":"flow-actor-3","label":"Postgres stores the row on disk and confirms.","packet":true,"from":"actor-3","to":"actor-4"},
+              {"highlight":"flow-actor-4","label":"Neon is the Postgres database, hosted far away from your phone. Your set now exists somewhere permanent."},
+              {"highlight":"flow-actor-1","label":"The answer travels back the same way, and the number on your screen updates. Total round trip: a fraction of a second."}
+            ]'>
+              <div class="flow-actors">
+                <div class="flow-actor" id="flow-actor-1">
+                  <div class="flow-actor-icon">📱</div>
+                  <span>React app</span>
+                </div>
+                <div class="flow-actor" id="flow-actor-2">
+                  <div class="flow-actor-icon">⚙️</div>
+                  <span>NestJS API</span>
+                </div>
+
+                <div class="flow-actor" id="flow-actor-3">
+                  <div class="flow-actor-icon">🔌</div>
+                  <span>Prisma</span>
+                </div>
+                <div class="flow-actor" id="flow-actor-4">
+                  <div class="flow-actor-icon">🗄️</div>
+                  <span>Postgres</span>
+                </div>
+              </div>
+
+              <div class="flow-packet" id="flow-packet"></div>
+
+              <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+
+              <div class="flow-controls">
+                <button class="btn flow-next-btn">Next Step</button>
+                <button class="btn flow-reset-btn">Restart</button>
+                <span class="flow-progress"></span>
+              </div>
+            </div>
+            <div class="badge-list">
+              <div class="badge-item">
+                <code class="badge-code">React</code>
+                <span class="badge-desc">The <span class="term" data-definition="A library is a bundle of pre-written code you pull into your project so you do not have to build common things yourself. React is the one that handles drawing and updating the screen.">library</span> that draws the screen and redraws it when data changes.</span>
+              </div>
+              <div class="badge-item">
+                <code class="badge-code">NestJS</code>
+                <span class="badge-desc">The <span class="term" data-definition="A framework is a skeleton for an application — it decides the overall shape and file structure, and you fill in the parts specific to your app. NestJS is the skeleton this backend is built on.">framework</span> the backend is built on. It receives requests and decides what to do with them.</span>
+              </div>
+              <div class="badge-item">
+                <code class="badge-code">Prisma</code>
+                <span class="badge-desc">An <span class="term" data-definition="ORM stands for Object-Relational Mapper. It is a translator: you write instructions in your normal programming language, and it converts them into SQL — the language databases speak. It also stops a whole class of attacks by never gluing your text directly into a database command.">ORM</span> — a translator between the code and the database.</span>
+              </div>
+              <div class="badge-item">
+                <code class="badge-code">Postgres</code>
+                <span class="badge-desc">The <span class="term" data-definition="A database is a program whose only job is to store data safely and find it again fast. Postgres is a popular free one; think of a filing system that survives power cuts and never loses a row.">database</span> itself, rented from a company called Neon.</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">The first leg, in real code</h2>
+            <p>This is the actual function the app calls to start a workout. Nine lines, and every one of them earns its place.</p>
+            <div class="translation-block animate-in">
+              <div class="translation-code">
+                <span class="translation-label">CODE</span>
+                <pre><code>
+<span class="code-line"><span class="code-keyword">export const</span> <span class="code-function">createSession</span> = (body: {</span>
+<span class="code-line">  <span class="code-property">templateDayId</span>?: <span class="code-keyword">string</span></span>
+<span class="code-line">  <span class="code-property">date</span>: <span class="code-keyword">string</span></span>
+<span class="code-line">  <span class="code-property">warmupType</span>?: WarmupType</span>
+<span class="code-line">  <span class="code-property">warmupDurationMin</span>?: <span class="code-keyword">number</span></span>
+<span class="code-line">  <span class="code-property">notes</span>?: <span class="code-keyword">string</span></span>
+<span class="code-line">  <span class="code-property">idempotencyKey</span>: <span class="code-keyword">string</span></span>
+<span class="code-line">}) =&gt; apiClient.<span class="code-function">post</span>&lt;SessionDetail&gt;(<span class="code-string">'/sessions'</span>, body).<span class="code-function">then</span>((r) =&gt; r.data)</span>
+                </code></pre>
+              </div>
+              <div class="translation-english">
+                <span class="translation-label">PLAIN ENGLISH</span>
+                <div class="translation-lines">
+                  <p class="tl">"Here is a job called <em>createSession</em>. Give it a workout, and it will start one."</p>
+                  <p class="tl">The question marks mean optional — you can start a workout without saying which planned day it belongs to.</p>
+                  <p class="tl">The date is <em>not</em> optional. A workout with no date is useless on a progress chart.</p>
+                  <p class="tl">Warmup type is limited to walk or run. Not "treadmill", not "bike" — the list of allowed answers is fixed elsewhere and enforced.</p>
+                  <p class="tl">Duration in minutes, notes in your own words. Both optional.</p>
+                  <p class="tl">This one is the interesting one: a unique ticket number for this exact workout. Module 5 explains why it is what stops a bad signal from creating four identical workouts.</p>
+                  <p class="tl">Send all of that to the address <code>/sessions</code> on the server, then hand back whatever the server replies.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Two programs, not one</h2>
+            <p>The single most useful thing to understand about this app: it is <em>two separate programs</em> that talk over the internet through an <span class="term" data-definition="An API (Application Programming Interface) is the fixed set of requests one program agrees to answer for another. Like a menu of things you are allowed to ask for, and the exact wording each request must use.">API</span>. They are written in different folders, <span class="term" data-definition="Deploying means copying your finished code onto a computer somewhere on the internet and starting it, so other people can use it. Until you deploy, the app only exists on your own machine.">deployed</span> to different companies, and either can be replaced without touching the other.</p>
+            <div class="pattern-cards stagger-children">
+              <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-1)">
+                <div class="pattern-icon" style="background: var(--color-actor-1)">📱</div>
+                <h4 class="pattern-title">frontend/</h4>
+                <p class="pattern-desc">Runs on <em>your phone</em>. Draws buttons, reacts to taps. Anyone can read this code — it is downloaded to the device. Hosted on GitHub Pages.</p>
+              </div>
+              <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+                <div class="pattern-icon" style="background: var(--color-actor-2)">⚙️</div>
+                <h4 class="pattern-title">backend/</h4>
+                <p class="pattern-desc">Runs on <em>a rented computer</em> at Render. Holds the rules, the passwords, the AI key. Nobody can read this code from outside.</p>
+              </div>
+              <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-4)">
+                <div class="pattern-icon" style="background: var(--color-actor-4)">🗄️</div>
+                <h4 class="pattern-title">Neon Postgres</h4>
+                <p class="pattern-desc">A database in a third place again. It remembers everything after the phone is closed and the server restarts.</p>
+              </div>
+            </div>
+            <div class="callout callout-info">
+              <div class="callout-icon">🔑</div>
+              <div class="callout-content">
+                <strong class="callout-title">Say this to an AI assistant</strong>
+                <p>"Put that logic in the backend, not the frontend — it must not be visible to the client." That one sentence prevents a whole category of security mistakes, and it only makes sense once you see the split above.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Think it through</h2>
+            <div class="quiz-container" id="quiz-module1">
+              <div class="quiz-question-block"
+                   data-correct="opt-backend"
+                   data-explanation-right="Right. The phone is a device you hand to a stranger at the gym; the key would ship inside the downloaded app and could be read out of it. Secrets belong on a machine only you control."
+                   data-explanation-wrong="Think about where the code physically runs. The frontend is downloaded onto every user's phone — anything inside it, including a key, can be read straight out of the app.">
+                <h3 class="quiz-question">You want to add a second AI feature. Where should the API key for it live?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-frontend" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>In the frontend, so the phone can call the AI directly and skip a hop</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-backend" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>In the backend, and the phone asks the backend to make the call</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-db" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>In the database, so both sides can read it</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <div class="quiz-question-block"
+                   data-correct="opt-two"
+                   data-explanation-right="Exactly. Your set reached the API and the API answered — the round trip worked. What failed is the leg between the API and the database, so that is where to look first."
+                   data-explanation-wrong="Re-read the symptom: the app got an error message back. Something answered it. A dead phone connection or a dead server produces silence or a timeout, not a tidy error message.">
+                <h3 class="quiz-question">A friend reports: "I tap save, and after a second I get an error saying something went wrong." Where is the most likely broken leg of the relay?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-one" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Their phone lost signal</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-two" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Somewhere past the API — the database write is failing</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-three" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>The button is wired to the wrong function</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+              <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </section>
+    <section class="module" id="module-2" style="background: var(--color-bg)">
+      <div class="module-content">
+        <header class="module-header animate-in">
+          <span class="module-number">02</span>
+          <h1 class="module-title">The Cast</h1>
+          <p class="module-subtitle">Every file in this project has exactly one job. Learn the job titles and the codebase stops looking like a pile.</p>
+        </header>
+
+        <div class="module-body">
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">A film crew, not a one-man band</h2>
+            <p>On a film set nobody does everything. The camera operator does not write dialogue; the editor never touches a light. The crew is <em>specialised</em>, and that is why a scene can be re-shot without rebuilding the whole production.</p>
+            <p>This codebase is organised the same way. Each of the roles below appears over and over, in every feature.</p>
+            <div class="icon-rows stagger-children">
+              <div class="icon-row animate-in">
+                <div class="icon-circle" style="background: var(--color-actor-1)">🎬</div>
+                <div>
+                  <strong>Controller — the receptionist</strong>
+                  <p>Takes the incoming request, checks the caller is logged in, and hands it to the right specialist. Contains no thinking of its own.</p>
+                </div>
+              </div>
+              <div class="icon-row animate-in">
+                <div class="icon-circle" style="background: var(--color-actor-2)">🧠</div>
+                <div>
+                  <strong>Service — where the rules live</strong>
+                  <p>"You cannot log a warmup on a kickboxing day." "One AI review per day." All the real decisions happen here.</p>
+                </div>
+              </div>
+              <div class="icon-row animate-in">
+                <div class="icon-circle" style="background: var(--color-actor-3)">📋</div>
+                <div>
+                  <strong><span class="term" data-definition="DTO stands for Data Transfer Object. It is a written description of the shape of data moving between two programs — which fields exist, what type each one is, which are required. The server checks incoming requests against it and rejects anything that does not fit.">DTO</span> — the entry form</strong>
+                  <p>A written description of what an incoming request is allowed to contain. Anything that does not match is rejected before it reaches the rules.</p>
+                </div>
+              </div>
+              <div class="icon-row animate-in">
+                <div class="icon-circle" style="background: var(--color-actor-4)">🗄️</div>
+                <div>
+                  <strong>Prisma — the archivist</strong>
+                  <p>The only part of the backend allowed to touch the database. Everything else asks it politely.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">The receptionist, in real code</h2>
+            <p>Here is the actual function that handles "start a new workout". Notice how little it does.</p>
+            <div class="translation-block animate-in">
+              <div class="translation-code">
+                <span class="translation-label">CODE</span>
+                <pre><code>
+<span class="code-line"><span class="code-keyword">@Controller</span>(<span class="code-string">'sessions'</span>)</span>
+<span class="code-line"><span class="code-keyword">@UseGuards</span>(JwtAuthGuard)</span>
+<span class="code-line"><span class="code-keyword">export class</span> <span class="code-function">SessionsController</span> {</span>
+<span class="code-line">  <span class="code-comment">// ...</span></span>
+<span class="code-line">  <span class="code-keyword">@Post</span>()</span>
+<span class="code-line">  <span class="code-function">create</span>(<span class="code-keyword">@CurrentUser</span>() u: { id: <span class="code-keyword">string</span> }, <span class="code-keyword">@Body</span>() dto: CreateSessionDto) {</span>
+<span class="code-line">    <span class="code-keyword">return this</span>.sessionsService.<span class="code-function">create</span>(u.id, dto);</span>
+<span class="code-line">  }</span>
+                </code></pre>
+              </div>
+              <div class="translation-english">
+                <span class="translation-label">PLAIN ENGLISH</span>
+                <div class="translation-lines">
+                  <p class="tl">"Everything in this file answers requests whose address starts with <code>/sessions</code>."</p>
+                  <p class="tl">"And <em>nobody</em> gets past this door without a valid pass." This is a <span class="term" data-definition="A guard is a piece of code that runs before a request reaches your function and can turn it away. Attach it once at the top of a file and it protects every function in that file — which is why security checks are written as guards instead of if-statements you have to remember.">guard</span>: one line, applied to every function below it, so you cannot forget it on one of them.</p>
+                  <p class="tl">The receptionist's name badge.</p>
+                  <p class="tl">"This next function handles POST — the verb browsers use for <em>create something new</em>."</p>
+                  <p class="tl">Two things get handed in: who is asking (pulled from their pass, never from the request body — that would let anyone claim to be anyone) and what they sent.</p>
+                  <p class="tl">And then it immediately delegates. That is the whole job. A receptionist who starts making medical decisions is a bug.</p>
+                </div>
+              </div>
+            </div>
+            <div class="callout callout-accent">
+              <div class="callout-icon">💡</div>
+              <div class="callout-content">
+                <strong class="callout-title">Key insight — separation of concerns</strong>
+                <p>Thin receptionist, thick specialist. When rules live in services instead of controllers, the same rule can be reused by three different doors — and tested without pretending to be a web browser.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Where everything lives</h2>
+            <p>Two folders, two casts. You will spend most of your time in one of these eight places.</p>
+            <div class="file-tree">
+              <div class="ft-folder open">
+                <span class="ft-name">backend/src/</span>
+                <span class="ft-desc">The program running on the rented server</span>
+                <div class="ft-children">
+                  <div class="ft-folder">
+                    <span class="ft-name">auth/</span>
+                    <span class="ft-desc">Signup, login, passes and refreshes</span>
+                  </div>
+                  <div class="ft-folder">
+                    <span class="ft-name">sessions/</span>
+                    <span class="ft-desc">Workouts, sets and rounds — the heart of the app</span>
+                  </div>
+                  <div class="ft-folder">
+                    <span class="ft-name">templates/</span>
+                    <span class="ft-desc">Your weekly plan: which day is gym, which is kickboxing</span>
+                  </div>
+                  <div class="ft-folder">
+                    <span class="ft-name">feedback/</span>
+                    <span class="ft-desc">Talks to Google's Gemini and stores the review</span>
+                  </div>
+                </div>
+              </div>
+              <div class="ft-folder open">
+                <span class="ft-name">frontend/src/</span>
+                <span class="ft-desc">The program running on your phone</span>
+                <div class="ft-children">
+                  <div class="ft-folder">
+                    <span class="ft-name">pages/</span>
+                    <span class="ft-desc">One file per screen: Dashboard, History, Progress, Session…</span>
+                  </div>
+                  <div class="ft-folder">
+                    <span class="ft-name">hooks/</span>
+                    <span class="ft-desc">Reusable "fetch this and keep it fresh" logic</span>
+                  </div>
+                  <div class="ft-folder">
+                    <span class="ft-name">api/</span>
+                    <span class="ft-desc">The list of every request the phone knows how to send</span>
+                  </div>
+                  <div class="ft-folder">
+                    <span class="ft-name">store/</span>
+                    <span class="ft-desc">The few facts every screen needs at once, like who is logged in</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">One rule, one home</h2>
+            <p>Sessions, sets and rounds all need the same check: <em>is this workout actually yours?</em> It used to be written three times. Now it is written once, and the comment above it explains why that matters more than tidiness.</p>
+            <div class="translation-block animate-in">
+              <div class="translation-code">
+                <span class="translation-label">CODE</span>
+                <pre><code>
+<span class="code-line"><span class="code-keyword">export async function</span> <span class="code-function">assertSessionOwned</span>(</span>
+<span class="code-line">  prisma: PrismaService,</span>
+<span class="code-line">  userId: <span class="code-keyword">string</span>,</span>
+<span class="code-line">  sessionId: <span class="code-keyword">string</span>,</span>
+<span class="code-line">) {</span>
+<span class="code-line">  <span class="code-keyword">const</span> session = <span class="code-keyword">await</span> prisma.session.<span class="code-function">findUnique</span>({ where: { id: sessionId } });</span>
+<span class="code-line">  <span class="code-keyword">if</span> (!session || session.userId !== userId) <span class="code-keyword">throw new</span> <span class="code-function">NotFoundException</span>();</span>
+<span class="code-line">  <span class="code-keyword">return</span> session;</span>
+<span class="code-line">}</span>
+                </code></pre>
+              </div>
+              <div class="translation-english">
+                <span class="translation-label">PLAIN ENGLISH</span>
+                <div class="translation-lines">
+                  <p class="tl">"Insist that this workout belongs to this person." The name is a sentence — good names save you reading the body.</p>
+                  <p class="tl">It needs the archivist, the person asking, and the workout in question.</p>
+                  <p class="tl">Go and fetch that one workout by its id.</p>
+                  <p class="tl">If it does not exist <em>or</em> it belongs to somebody else — same answer: "not found."</p>
+                  <p class="tl">Notice it does not say "forbidden". "Forbidden" would quietly confirm the workout exists, letting a stranger map out other people's data by guessing ids. "Not found" tells them nothing.</p>
+                  <p class="tl">Otherwise, hand back the workout so the caller does not have to fetch it twice.</p>
+                </div>
+              </div>
+            </div>
+            <div class="callout callout-warning">
+              <div class="callout-icon">⚠️</div>
+              <div class="callout-content">
+                <strong class="callout-title">The mistake this prevents</strong>
+                <p>When the same security check is copy-pasted into three files, someone eventually fixes a bug in one copy. The other two keep shipping. A rule with three homes is a rule with two exploits.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">The phone-side cast</h2>
+            <p>The frontend has its own division of labour. This is the entire "who is logged in" store — small on purpose.</p>
+            <div class="translation-block animate-in">
+              <div class="translation-code">
+                <span class="translation-label">CODE</span>
+                <pre><code>
+<span class="code-line"><span class="code-comment">// Access token is kept in memory only. On page reload the refresh-token</span></span>
+<span class="code-line"><span class="code-comment">// HTTP-only cookie is used to re-issue an access token via /auth/refresh.</span></span>
+<span class="code-line"><span class="code-keyword">export const</span> useAuthStore = create&lt;AuthStore&gt;()((set) =&gt; ({</span>
+<span class="code-line">  <span class="code-property">accessToken</span>: <span class="code-keyword">null</span>,</span>
+<span class="code-line">  <span class="code-property">setToken</span>: (token) =&gt; <span class="code-function">set</span>({ accessToken: token }),</span>
+<span class="code-line">  <span class="code-property">clearToken</span>: () =&gt; <span class="code-function">set</span>({ accessToken: <span class="code-keyword">null</span> }),</span>
+<span class="code-line">}))</span>
+                </code></pre>
+              </div>
+              <div class="translation-english">
+                <span class="translation-label">PLAIN ENGLISH</span>
+                <div class="translation-lines">
+                  <p class="tl">The comment is doing real work: it explains a deliberate choice, not what the code says. Keep the pass <em>in memory only</em> — never written to disk.</p>
+                  <p class="tl">Why? Anything written to phone storage can be read by other scripts on the page. Losing it on refresh is the price; module 4 shows how the app recovers.</p>
+                  <p class="tl">Create a shared box that every screen can read from and write to.</p>
+                  <p class="tl">It starts empty — nobody is logged in when the app opens.</p>
+                  <p class="tl">Two things you can do to it: put a pass in…</p>
+                  <p class="tl">…or throw the pass away, which is what logging out means on this side.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Match the role to the job</h2>
+            <p>Drag each cast member onto the job they actually do.</p>
+            <div class="dnd-container" id="dnd-module2">
+              <div class="dnd-chips">
+                <div class="dnd-chip" draggable="true" data-answer="controller">Controller</div>
+                <div class="dnd-chip" draggable="true" data-answer="service">Service</div>
+                <div class="dnd-chip" draggable="true" data-answer="dto">DTO</div>
+                <div class="dnd-chip" draggable="true" data-answer="hook">Hook</div>
+              </div>
+              <div class="dnd-zones">
+                <div class="dnd-zone" data-correct="controller">
+                  <p class="dnd-zone-label">Answers a web address, checks the pass, delegates immediately</p>
+                  <div class="dnd-zone-target">Drop here</div>
+                </div>
+                <div class="dnd-zone" data-correct="service">
+                  <p class="dnd-zone-label">Holds the business rules — "one review per day", "no warmup on kickboxing days"</p>
+                  <div class="dnd-zone-target">Drop here</div>
+                </div>
+                <div class="dnd-zone" data-correct="dto">
+                  <p class="dnd-zone-label">Describes what an incoming request is allowed to contain, and rejects the rest</p>
+                  <div class="dnd-zone-target">Drop here</div>
+                </div>
+                <div class="dnd-zone" data-correct="hook">
+                  <p class="dnd-zone-label">On the phone: fetches data for a screen and keeps it fresh</p>
+                  <div class="dnd-zone-target">Drop here</div>
+                </div>
+              </div>
+              <button class="btn" onclick="checkDnD('dnd-module2')">Check Matches</button>
+              <button class="btn" onclick="resetDnD('dnd-module2')">Reset</button>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Think it through</h2>
+            <div class="quiz-container" id="quiz-module2">
+              <div class="quiz-question-block"
+                   data-correct="opt-service"
+                   data-explanation-right="Right. Limits are a rule, and rules live in the service. Put it in the controller and the next door into the same feature skips it entirely."
+                   data-explanation-wrong="Ask yourself: is this a decision, or is it plumbing? A cap on how many workouts someone can log is a decision about the product — and decisions live with the rules.">
+                <h3 class="quiz-question">You want to add: "a user may log at most 3 workouts per day." Which cast member should own that rule?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-controller" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>The controller — it sees the request first</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-service" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>The service — it is a business rule</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-frontend" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>The phone — hide the button after the third workout</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <div class="quiz-question-block"
+                   data-correct="opt-both"
+                   data-explanation-right="Exactly. Hiding the button is good manners; enforcing it on the server is what actually holds. Anyone can bypass your screen and talk to the API directly — the phone is not a security boundary."
+                   data-explanation-wrong="Remember where each program runs. The frontend is downloaded onto the user's device, so the user controls it completely — including the ability to send requests your UI never offers.">
+                <h3 class="quiz-question">Your AI assistant implements that limit by disabling the button in the app once you hit three. Is that enough?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-yes" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Yes — if the button is gone, nobody can do it</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-both" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>No — the server must enforce it too; the UI change is just politeness</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-db" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>No — the database should reject the fourth row</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <div class="quiz-question-block"
+                   data-correct="opt-service2"
+                   data-explanation-right="Yes. The screen is the symptom, not the cause. Data problems almost always trace back to the rules layer or the database call underneath it."
+                   data-explanation-wrong="A wrong number on screen usually means wrong data arrived, not wrong pixels. Start where the number is computed, not where it is displayed.">
+                <h3 class="quiz-question">The history screen shows a workout with the wrong date. Where do you look first?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-page" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>The page file — it draws the list</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-service2" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Follow the data backwards: hook → API call → service → database</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-css" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>The styling — dates are probably formatted there</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+              <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </section>
+    <section class="module" id="module-3" style="background: var(--color-bg-warm)">
+      <div class="module-content">
+        <header class="module-header animate-in">
+          <span class="module-number">03</span>
+          <h1 class="module-title">How They Talk</h1>
+          <p class="module-subtitle">Two programs, one shared script. Verbs, addresses, forms — and what happens when someone goes off-script.</p>
+        </header>
+
+        <div class="module-body">
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Radio discipline</h2>
+            <p>Pilots and air traffic control do not chat. They use fixed phrases in a fixed order, because a misheard sentence at 300 knots is fatal. Every message names who it is for, what is wanted, and nothing else.</p>
+            <p>Two programs talking over the internet follow the same discipline. Every request carries a <strong>verb</strong> (what kind of thing this is) and an <strong>address</strong> (what it concerns).</p>
+            <div class="badge-list">
+              <div class="badge-item">
+                <code class="badge-code">GET /sessions</code>
+                <span class="badge-desc">"Send me the list of workouts." Asks for data, changes nothing.</span>
+              </div>
+              <div class="badge-item">
+                <code class="badge-code">POST /sessions</code>
+                <span class="badge-desc">"Create a new workout." The verb for <em>make something that did not exist</em>.</span>
+              </div>
+              <div class="badge-item">
+                <code class="badge-code">PATCH /sessions/:id</code>
+                <span class="badge-desc">"Change part of this one workout." The <code>:id</code> is a blank filled in with a specific workout.</span>
+              </div>
+              <div class="badge-item">
+                <code class="badge-code">DELETE /sessions/:id/sets/:setId</code>
+                <span class="badge-desc">"Remove that one set from that one workout." Addresses nest, like folders.</span>
+              </div>
+            </div>
+            <p><span class="term" data-definition="GET means read-only: asking for data without changing anything. Because a GET changes nothing, it is safe to repeat, cache, or retry automatically — which is exactly why the offline queue in module 5 only ever bothers with the other verbs.">GET</span> is safe to repeat. <span class="term" data-definition="POST means create: send data to the server so it makes something new. Repeating a POST usually creates a second copy — which is the whole problem the idempotency key in module 5 exists to solve.">POST</span> is not — repeat it and you get two workouts. Half the tricky bugs in this app come from that one asymmetry.</p>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Listen in</h2>
+            <p>You opened one workout to add a set. Here is the conversation that follows, in the order it actually happens.</p>
+            <div class="chat-window" id="chat-module3">
+              <div class="chat-messages">
+                <div class="chat-message" data-msg="0" data-sender="phone" style="display:none">
+                  <div class="chat-avatar" style="background: var(--color-actor-1)">📱</div>
+                  <div class="chat-bubble">
+                    <span class="chat-sender" style="color: var(--color-actor-1)">Phone</span>
+                    <p>PUT /sessions/8f2a…/sets — bench press, set 3, 8 reps, 70kg. Here is my pass.</p>
+                  </div>
+                </div>
+                <div class="chat-message" data-msg="1" data-sender="guard" style="display:none">
+                  <div class="chat-avatar" style="background: var(--color-actor-5)">🛂</div>
+                  <div class="chat-bubble">
+                    <span class="chat-sender" style="color: var(--color-actor-5)">Guard</span>
+                    <p>Pass checks out, and it has not expired. You are user 4b1c…. Go ahead.</p>
+                  </div>
+                </div>
+                <div class="chat-message" data-msg="2" data-sender="dto" style="display:none">
+                  <div class="chat-avatar" style="background: var(--color-actor-3)">📋</div>
+                  <div class="chat-bubble">
+                    <span class="chat-sender" style="color: var(--color-actor-3)">Entry form</span>
+                    <p>Reps is a whole number, at least 1. Weight is a number. Exercise id is a real id. Form accepted.</p>
+                  </div>
+                </div>
+                <div class="chat-message" data-msg="3" data-sender="service" style="display:none">
+                  <div class="chat-avatar" style="background: var(--color-actor-2)">🧠</div>
+                  <div class="chat-bubble">
+                    <span class="chat-sender" style="color: var(--color-actor-2)">Sets service</span>
+                    <p>Hold on — is workout 8f2a… owned by user 4b1c…? Archivist, check for me.</p>
+                  </div>
+                </div>
+                <div class="chat-message" data-msg="4" data-sender="prisma" style="display:none">
+                  <div class="chat-avatar" style="background: var(--color-actor-4)">🗄️</div>
+                  <div class="chat-bubble">
+                    <span class="chat-sender" style="color: var(--color-actor-4)">Prisma</span>
+                    <p>Yes — that workout belongs to 4b1c…. Writing the set now. Done, here is the row.</p>
+                  </div>
+                </div>
+                <div class="chat-message" data-msg="5" data-sender="phone" style="display:none">
+                  <div class="chat-avatar" style="background: var(--color-actor-1)">📱</div>
+                  <div class="chat-bubble">
+                    <span class="chat-sender" style="color: var(--color-actor-1)">Phone</span>
+                    <p>Got it. Throwing away my cached copy of this workout and asking again, so the screen shows the truth rather than my guess.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chat-typing" id="chat-typing" style="display:none">
+                <div class="chat-avatar" id="typing-avatar">?</div>
+                <div class="chat-typing-dots">
+                  <span class="typing-dot"></span>
+                  <span class="typing-dot"></span>
+                  <span class="typing-dot"></span>
+                </div>
+              </div>
+
+              <div class="chat-controls">
+                <button class="btn chat-next-btn">Next Message</button>
+                <button class="btn chat-all-btn">Play All</button>
+                <button class="btn chat-reset-btn">Replay</button>
+                <span class="chat-progress"></span>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">The entry form, in full</h2>
+            <p>That "form accepted" step is a real file. Six lines describe every request allowed to start a workout.</p>
+            <div class="translation-block animate-in">
+              <div class="translation-code">
+                <span class="translation-label">CODE</span>
+                <pre><code>
+<span class="code-line"><span class="code-keyword">export class</span> <span class="code-function">CreateSessionDto</span> {</span>
+<span class="code-line">  <span class="code-keyword">@IsOptional</span>() <span class="code-keyword">@IsUUID</span>() templateDayId?: <span class="code-keyword">string</span>;</span>
+<span class="code-line">  <span class="code-keyword">@IsDateString</span>() date: <span class="code-keyword">string</span>;</span>
+<span class="code-line">  <span class="code-keyword">@IsOptional</span>() <span class="code-keyword">@IsEnum</span>([<span class="code-string">'walk'</span>, <span class="code-string">'run'</span>]) warmupType?: <span class="code-string">'walk'</span> | <span class="code-string">'run'</span>;</span>
+<span class="code-line">  <span class="code-keyword">@IsOptional</span>() <span class="code-keyword">@IsInt</span>() <span class="code-keyword">@Min</span>(<span class="code-number">1</span>) warmupDurationMin?: <span class="code-keyword">number</span>;</span>
+<span class="code-line">  <span class="code-keyword">@IsOptional</span>() <span class="code-keyword">@IsString</span>() notes?: <span class="code-keyword">string</span>;</span>
+<span class="code-line">  <span class="code-keyword">@IsUUID</span>() idempotencyKey: <span class="code-keyword">string</span>;</span>
+<span class="code-line">}</span>
+                </code></pre>
+              </div>
+              <div class="translation-english">
+                <span class="translation-label">PLAIN ENGLISH</span>
+                <div class="translation-lines">
+                  <p class="tl">"Any request that wants to create a workout must look exactly like this."</p>
+                  <p class="tl">You may leave out the planned day — but if you send one, it has to be a real <span class="term" data-definition="A UUID is a long random-looking id such as 8f2a41c0-9d3e-4b77-a1f2-6c0e5b9d2e11. They are used instead of 1, 2, 3 because they are impossible to guess, so nobody can walk through other people&apos;s records by trying the next number.">UUID</span>, not the word "monday".</p>
+                  <p class="tl">The date is required and must be a real date. "yesterday" is rejected here, before it can poison a chart six months from now.</p>
+                  <p class="tl">Warmup type may only be walk or run. This is the list the whole app agrees on — send "treadmill" and the request never reaches the rules.</p>
+                  <p class="tl">If you send a duration it must be a whole number of at least 1. No negative warmups, no half minutes.</p>
+                  <p class="tl">Notes can be any text, or nothing.</p>
+                  <p class="tl">The ticket number is required and must be a UUID. Module 5 is built on this line.</p>
+                </div>
+              </div>
+            </div>
+            <div class="callout callout-accent">
+              <div class="callout-icon">💡</div>
+              <div class="callout-content">
+                <strong class="callout-title">Key insight — validate at the border</strong>
+                <p>Bad data is cheapest to stop at the front door. Once it is in the database, every screen, every chart and every AI review has to cope with it forever. Engineers call this <em>validation at the boundary</em>, and it is one of the highest-value things you can ask an AI assistant to add.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">The phone's memory</h2>
+            <p>The app does not re-ask the server every time you glance at a screen. It keeps answers for a while — and the whole caching policy is three lines.</p>
+            <div class="translation-block animate-in">
+              <div class="translation-code">
+                <span class="translation-label">CODE</span>
+                <pre><code>
+<span class="code-line"><span class="code-keyword">export function</span> <span class="code-function">useSessions</span>(params?: {</span>
+<span class="code-line">  <span class="code-comment">// ...</span></span>
+<span class="code-line">}) {</span>
+<span class="code-line">  <span class="code-keyword">return</span> <span class="code-function">useQuery</span>({</span>
+<span class="code-line">    <span class="code-property">queryKey</span>: [<span class="code-string">'sessions'</span>, params],</span>
+<span class="code-line">    <span class="code-property">queryFn</span>: () =&gt; <span class="code-function">listSessions</span>(params),</span>
+<span class="code-line">  })</span>
+<span class="code-line">}</span>
+                </code></pre>
+              </div>
+              <div class="translation-english">
+                <span class="translation-label">PLAIN ENGLISH</span>
+                <div class="translation-lines">
+                  <p class="tl">"Any screen that needs the workout list should ask me, not the network."</p>
+                  <p class="tl">The filters — date range, page number — come in as options.</p>
+                  <p class="tl">Hand the work to <span class="term" data-definition="React Query is a library that remembers the answers to server requests. Ask for the same thing twice and it hands back the copy it already has, then quietly re-checks in the background. It is what makes an app feel instant when you switch between screens.">React Query</span>, which handles the remembering.</p>
+                  <p class="tl">This is the label on the drawer: "sessions, with these filters". Same label → same cached answer. Different filters → different drawer.</p>
+                  <p class="tl">And this is what to do when the drawer is empty: actually call the server.</p>
+                  <p class="tl">Elsewhere in the app the answer is kept fresh for five minutes before it is re-checked.</p>
+                </div>
+              </div>
+            </div>
+            <div class="callout callout-warning">
+              <div class="callout-icon">⚠️</div>
+              <div class="callout-content">
+                <strong class="callout-title">The bug this creates</strong>
+                <p>"I saved it but it does not show up" is almost always a cache that was not thrown away after a write. If you ever report that symptom to an AI assistant, say <em>"invalidate the query after the mutation"</em> — that is the exact fix, and naming it saves you three wrong guesses.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Think it through</h2>
+            <div class="quiz-container" id="quiz-module3">
+              <div class="quiz-question-block"
+                   data-correct="opt-dto"
+                   data-explanation-right="Correct. The entry form is the single place that decides what a legal request looks like, so both the rules layer and the database downstream can stop double-checking."
+                   data-explanation-wrong="Think about which cast member is responsible for the shape of incoming data — before any rules run and before anything is written down.">
+                <h3 class="quiz-question">You add a "mood" field to a workout, 1 to 5. Where does "must be between 1 and 5" belong?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-page" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>In the page, as a slider that only goes 1–5</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-dto" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>In the DTO on the server, alongside the other field rules</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-nowhere" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Nowhere — the database will complain if it is wrong</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <div class="quiz-question-block"
+                   data-correct="opt-cache"
+                   data-explanation-right="Exactly. The write succeeded; the screen is showing a remembered answer from before it. The fix is to throw that memory away when the write lands."
+                   data-explanation-wrong="Notice the detail: it appears after a refresh. That means the server has the data — so the write worked. Something on the phone is showing you a stale copy.">
+                <h3 class="quiz-question">A user adds a set. The screen does not show it, but after closing and reopening the app it is there. What is wrong?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-db" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>The database write is failing</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-cache" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>The cached copy on the phone was never invalidated</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-auth" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Their pass expired mid-request</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <div class="quiz-question-block"
+                   data-correct="opt-post"
+                   data-explanation-right="Right. GET only reads, so a retry costs nothing. POST creates, so a retry can create a second copy — which is why creates need a ticket number and reads do not."
+                   data-explanation-wrong="Think about what each verb does to the server. One of them leaves the world exactly as it found it, no matter how many times you send it.">
+                <h3 class="quiz-question">Your app auto-retries failed requests. Which verb is dangerous to retry blindly?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-get" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>GET — repeated reads hammer the database</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-post" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>POST — a retry can create a duplicate</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-none" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Neither — retries are always safe</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+              <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </section>
+    <section class="module" id="module-4" style="background: var(--color-bg)">
+      <div class="module-content">
+        <header class="module-header animate-in">
+          <span class="module-number">04</span>
+          <h1 class="module-title">Proving Who You Are</h1>
+          <p class="module-subtitle">A day pass, a membership card, and what the system does when it notices a card has been cloned.</p>
+        </header>
+
+        <div class="module-body">
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Two pieces of plastic</h2>
+            <p>Think about a real gym. You have a <strong>membership card</strong> that lasts a year and lives in your wallet. At the desk it gets swapped for a <strong>day pass</strong> — a flimsy thing that stops working tonight, which you show at every door inside.</p>
+            <p>This app issues exactly those two things, for exactly the same reason.</p>
+            <div class="pattern-cards stagger-children">
+              <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-1)">
+                <div class="pattern-icon" style="background: var(--color-actor-1)">🎫</div>
+                <h4 class="pattern-title">Access <span class="term" data-definition="A token is a string of characters that proves you are allowed to do something — like a ticket stub. The server can check it is genuine without looking anything up, because it is signed with a secret only the server knows.">token</span> — the day pass</h4>
+                <p class="pattern-desc">Lives <strong>15 minutes</strong>. Attached to every single request. Kept in the phone's memory only, never written to disk.</p>
+              </div>
+              <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+                <div class="pattern-icon" style="background: var(--color-actor-2)">💳</div>
+                <h4 class="pattern-title">Refresh token — the membership card</h4>
+                <p class="pattern-desc">Lives <strong>7 days</strong>. Used only to get a new day pass. Stored in an <span class="term" data-definition="An HTTP-only cookie is a small piece of data the browser stores and sends back automatically, but which JavaScript on the page is forbidden to read. That restriction is the point: even a malicious script injected into the page cannot steal it.">HTTP-only cookie</span> the app's own code cannot read.</p>
+              </div>
+            </div>
+            <div class="callout callout-accent">
+              <div class="callout-icon">💡</div>
+              <div class="callout-content">
+                <strong class="callout-title">Why not one long-lived pass?</strong>
+                <p>Because stolen passes are the normal case, not the exception. A 15-minute pass is worth almost nothing to a thief; a card that lives in a place scripts cannot reach is hard to steal in the first place. Short life plus limited reach — that is the entire design.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Your password is never stored</h2>
+            <p>The database does not contain your password. It contains the result of putting your password through a one-way blender.</p>
+            <div class="translation-block animate-in">
+              <div class="translation-code">
+                <span class="translation-label">CODE</span>
+                <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> hashed = <span class="code-keyword">await</span> bcrypt.<span class="code-function">hash</span>(dto.password, <span class="code-number">12</span>);</span>
+<span class="code-line"><span class="code-keyword">const</span> user = <span class="code-keyword">await</span> <span class="code-keyword">this</span>.prisma.user.<span class="code-function">create</span>({</span>
+<span class="code-line">  data: { email: dto.email, password: hashed, name: dto.name },</span>
+<span class="code-line">});</span>
+                </code></pre>
+              </div>
+              <div class="translation-english">
+                <span class="translation-label">PLAIN ENGLISH</span>
+                <div class="translation-lines">
+                  <p class="tl">Run the password through <span class="term" data-definition="bcrypt is a password hashing function. It scrambles a password into a fixed-length string that cannot be unscrambled — you can only take a fresh guess, scramble it the same way, and compare. It is also deliberately slow, which makes guessing billions of passwords impractical.">bcrypt</span>, a scrambler that cannot be run backwards.</p>
+                  <p class="tl">The 12 is a cost setting: it makes each scramble take a noticeable fraction of a second. Annoying once at login, ruinous for someone trying a billion guesses.</p>
+                  <p class="tl">Store the scrambled version. If this database ever leaks, the attacker gets gibberish, not logins.</p>
+                  <p class="tl">Checking a login later means scrambling the attempt and comparing the two results — the original is never recovered, by anyone, including this app.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">The cloned card</h2>
+            <p>Every time you swap your membership card for a fresh day pass, the old card is <em>destroyed</em> and a new one issued. So if an old, already-destroyed card ever shows up at the desk, exactly one thing is true: someone copied it.</p>
+            <div class="translation-block animate-in">
+              <div class="translation-code">
+                <span class="translation-label">CODE</span>
+                <pre><code>
+<span class="code-line"><span class="code-keyword">if</span> (stored.revoked) {</span>
+<span class="code-line">  <span class="code-comment">// Reuse of a revoked token — likely stolen. Revoke the whole family.</span></span>
+<span class="code-line">  <span class="code-keyword">this</span>.logger.<span class="code-function">warn</span>(</span>
+<span class="code-line">    <span class="code-string">`Refresh token reuse detected for user ${payload.sub} (token ${stored.id}). Revoking family.`</span>,</span>
+<span class="code-line">  );</span>
+<span class="code-line">  <span class="code-keyword">await this</span>.prisma.refreshToken.<span class="code-function">updateMany</span>({</span>
+<span class="code-line">    where: { userId: payload.sub, revoked: <span class="code-keyword">false</span> },</span>
+<span class="code-line">    data: { revoked: <span class="code-keyword">true</span> },</span>
+<span class="code-line">  });</span>
+<span class="code-line">  <span class="code-keyword">throw new</span> <span class="code-function">UnauthorizedException</span>(<span class="code-string">'Refresh token reuse detected'</span>);</span>
+<span class="code-line">}</span>
+                </code></pre>
+              </div>
+              <div class="translation-english">
+                <span class="translation-label">PLAIN ENGLISH</span>
+                <div class="translation-lines">
+                  <p class="tl">"Someone just presented a card we already destroyed."</p>
+                  <p class="tl">The comment states the conclusion, not the mechanics — the honest owner and a thief both hold a copy, and we cannot tell which one is standing here.</p>
+                  <p class="tl">Write a warning to the log with the user id and the card id. Note what is <em>not</em> logged: no email, no name, no token value. Logs get shipped to other systems and read by other people.</p>
+                  <p class="tl">So destroy <em>every</em> card this user currently holds…</p>
+                  <p class="tl">…in one sweep.</p>
+                  <p class="tl">And refuse this request. Both the thief and the real owner get logged out; the owner signs in again with their password, which the thief does not have. Momentary annoyance beats a silent intruder.</p>
+                </div>
+              </div>
+            </div>
+            <div class="callout callout-info">
+              <div class="callout-icon">🔍</div>
+              <div class="callout-content">
+                <strong class="callout-title">This pattern has a name</strong>
+                <p>It is called <em>refresh token rotation with reuse detection</em>. Saying that phrase to an AI assistant gets you this whole design in one shot; asking for "make login secure" gets you a coin flip.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Spot the bug</h2>
+            <p>Below is a login check of the kind that appears in a thousand tutorials. One line makes the entire scheme from the last two screens pointless. Click it.</p>
+            <div class="bug-challenge">
+              <h3>Find the line that breaks security:</h3>
+              <div class="bug-code">
+                <div class="bug-line" data-line="1"
+                     data-hint="Looking up the account by email is exactly right — and going through Prisma means the email can never be smuggled in as a database command. Keep looking."
+                     onclick="checkBugLine(this, false)">
+                  <span class="line-num">1</span>
+                  <code>const user = await this.prisma.user.findUnique({ where: { email: dto.email } });</code>
+                </div>
+                <div class="bug-line" data-line="2"
+                     data-hint="This one is actually good practice — the message says &apos;invalid credentials&apos; rather than &apos;no such email&apos;, so nobody can use the login form to discover which emails have accounts."
+                     onclick="checkBugLine(this, false)">
+                  <span class="line-num">2</span>
+                  <code>if (!user) throw new UnauthorizedException('Invalid credentials');</code>
+                </div>
+                <div class="bug-line bug-target" data-line="3"
+                     data-explanation="This compares the typed password directly against what is stored. That can only ever succeed if the stored password was never scrambled — meaning the database holds everyone&apos;s real password in readable form. One leak and every account is gone, including accounts on other sites where people reused the password."
+                     onclick="checkBugLine(this, true)">
+                  <span class="line-num">3</span>
+                  <code>const valid = dto.password === user.password;</code>
+                </div>
+                <div class="bug-line" data-line="4"
+                     data-hint="Same wording as line 2, on purpose: a wrong password and a missing account are indistinguishable from outside. That is deliberate, not sloppy."
+                     onclick="checkBugLine(this, false)">
+                  <span class="line-num">4</span>
+                  <code>if (!valid) throw new UnauthorizedException('Invalid credentials');</code>
+                </div>
+                <div class="bug-line" data-line="5"
+                     data-hint="Issuing the day pass and the membership card only after the check passes is the correct order. The problem is further up — in how the check itself is done."
+                     onclick="checkBugLine(this, false)">
+                  <span class="line-num">5</span>
+                  <code>return this.issueTokens(user.id, user.email);</code>
+                </div>
+              </div>
+              <div class="bug-feedback" id="bug-feedback"></div>
+            </div>
+            <p>The real file uses <code>await bcrypt.compare(dto.password, user.password)</code> — scramble the attempt, compare the scrambles. A plain <code>===</code> only works if the stored password was never scrambled at all, which means the database is holding everyone's real password in plain sight.</p>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Why the app never asks you to log in twice</h2>
+            <p>Your day pass expires every 15 minutes, but you never notice. That is one piece of code doing the swap silently in the background.</p>
+            <div class="step-cards stagger-children">
+              <div class="step-card animate-in">
+                <div class="step-num">1</div>
+                <div class="step-body">
+                  <strong>A request comes back rejected</strong>
+                  <p>The server answers <span class="term" data-definition="401 Unauthorized is the standard code a server sends when it does not accept who you claim to be — missing or expired credentials. Its sibling 403 Forbidden means the opposite: it knows who you are and you still may not do this.">401</span> — "your pass is no good any more".</p>
+                </div>
+              </div>
+              <div class="step-card animate-in">
+                <div class="step-num">2</div>
+                <div class="step-body">
+                  <strong>The app quietly visits the desk</strong>
+                  <p>It calls <code>/auth/refresh</code>. The membership card rides along automatically in the cookie — no code has to fetch it.</p>
+                </div>
+              </div>
+              <div class="step-card animate-in">
+                <div class="step-num">3</div>
+                <div class="step-body">
+                  <strong>Everyone else waits in line</strong>
+                  <p>If five requests fail at once, only <em>one</em> refresh happens. The other four queue up and are handed the new pass. Without that, five refreshes race, four cards get destroyed, and reuse detection logs you out for no reason.</p>
+                </div>
+              </div>
+              <div class="step-card animate-in">
+                <div class="step-num">4</div>
+                <div class="step-body">
+                  <strong>The original request is retried</strong>
+                  <p>With the fresh pass attached. You saw nothing but a slightly slower save.</p>
+                </div>
+              </div>
+              <div class="step-card animate-in">
+                <div class="step-num">5</div>
+                <div class="step-body">
+                  <strong>Unless the card is dead too</strong>
+                  <p>Then the pass is thrown away and you land on the login screen — the only time you ever see this machinery.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Think it through</h2>
+            <div class="quiz-container" id="quiz-module4">
+              <div class="quiz-question-block"
+                   data-correct="opt-15"
+                   data-explanation-right="Right. The pass is attached to every request and lives in memory where scripts can reach it, so it is the piece most likely to leak — and the piece designed to be worthless within minutes."
+                   data-explanation-wrong="Think about which of the two is sent constantly and which is locked in a place page scripts cannot read at all.">
+                <h3 class="quiz-question">An attacker steals one of the two credentials. Which one hurts less, and why?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-15" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>The access token — it dies in 15 minutes</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-refresh" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>The refresh token — it is only used on one endpoint</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-same" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Identical damage — both prove who you are</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <div class="quiz-question-block"
+                   data-correct="opt-family"
+                   data-explanation-right="Exactly. An old card resurfacing means a copy exists somewhere. Since the desk cannot tell the copy from the original, it destroys them all and makes the one who knows the password start again."
+                   data-explanation-wrong="Consider what a destroyed card being presented actually proves. Somebody kept a copy — and there is no way to tell from the counter which of the two people holding it is the owner.">
+                <h3 class="quiz-question">Your own laptop, still logged in from last week, suddenly gets kicked to the login screen. What most likely happened?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-expired" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>The 7-day card simply expired</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-family" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Reuse of an old card was detected, so every card was destroyed</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-bug" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>A bug — logins should never end on their own</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <div class="quiz-question-block"
+                   data-correct="opt-id"
+                   data-explanation-right="Correct. Log identifiers, never values. An id lets you investigate; an email in a log file is personal data sitting somewhere it was never meant to live."
+                   data-explanation-wrong="Logs get copied into monitoring tools, searched by other people, and kept for months. Ask what the smallest thing is that still lets you find the account later.">
+                <h3 class="quiz-question">You are adding a log line for failed logins. What should it contain?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-email" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>The email address, so you can see who is struggling</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-pw" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>The attempted password, to spot typos and bots</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-id" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>The user id and a reason code — no personal data</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <button class="quiz-check-btn" onclick="checkQuiz('quiz-module4')">Check Answers</button>
+              <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module4')">Try Again</button>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </section>
+    <section class="module" id="module-5" style="background: var(--color-bg-warm)">
+      <div class="module-content">
+        <header class="module-header animate-in">
+          <span class="module-number">05</span>
+          <h1 class="module-title">When The Signal Dies</h1>
+          <p class="module-subtitle">Basement gyms have no bars. The app is built so that stops mattering.</p>
+        </header>
+
+        <div class="module-body">
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">The letters in your bag</h2>
+            <p>You write letters all week while travelling. There is no postbox. You do not throw them away and you do not stand in the street waiting — you put them in your bag, and post the lot when you pass a postbox.</p>
+            <p>That is the entire offline design. Nothing is lost, nothing blocks, and the sending happens later without you thinking about it.</p>
+            <p>Before this existed, the finish button failed <em>silently</em> underground: the set looked saved, the screen moved on, and the workout was gone. Silent data loss is the worst class of bug there is — nobody reports it, because nobody notices.</p>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Which letters go in the bag?</h2>
+            <p>Not every failed request belongs in a queue. This function is the doorman, and its three refusals are more interesting than its acceptance.</p>
+            <div class="translation-block animate-in">
+              <div class="translation-code">
+                <span class="translation-label">CODE</span>
+                <pre><code>
+<span class="code-line"><span class="code-keyword">export function</span> <span class="code-function">shouldQueue</span>(error: {</span>
+<span class="code-line">  response?: <span class="code-keyword">unknown</span></span>
+<span class="code-line">  config?: QueueableConfig</span>
+<span class="code-line">}): <span class="code-keyword">boolean</span> {</span>
+<span class="code-line">  <span class="code-keyword">const</span> config = error.config</span>
+<span class="code-line">  <span class="code-keyword">if</span> (!config) <span class="code-keyword">return false</span></span>
+<span class="code-line">  <span class="code-keyword">if</span> (error.response) <span class="code-keyword">return false</span></span>
+<span class="code-line">  <span class="code-keyword">if</span> (config.__isReplay) <span class="code-keyword">return false</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">const</span> method = config.method?.<span class="code-function">toLowerCase</span>()</span>
+<span class="code-line">  <span class="code-keyword">return</span> !!method &amp;&amp; QUEUEABLE_METHODS.<span class="code-function">has</span>(method)</span>
+<span class="code-line">}</span>
+                </code></pre>
+              </div>
+              <div class="translation-english">
+                <span class="translation-label">PLAIN ENGLISH</span>
+                <div class="translation-lines">
+                  <p class="tl">"Given a request that just failed — does it belong in the bag?"</p>
+                  <p class="tl">No description of the request at all? Nothing to replay later. Refuse.</p>
+                  <p class="tl"><strong>The important one.</strong> If the server <em>answered</em> — even to say "that is invalid" — this is not a signal problem. Queueing it would hide a real error from the user and replay a request the server already refused. Refuse.</p>
+                  <p class="tl">If this failure came from replaying the bag, do not put it back in the bag. Without this line every drain adds a fresh copy and the queue grows forever.</p>
+                  <p class="tl">Finally, look at the verb.</p>
+                  <p class="tl">Only POST, PUT, PATCH and DELETE qualify — the verbs that <em>change</em> something. A failed read is not worth saving; the screen can just ask again later.</p>
+                </div>
+              </div>
+            </div>
+            <div class="callout callout-accent">
+              <div class="callout-icon">💡</div>
+              <div class="callout-content">
+                <strong class="callout-title">Key insight — "no answer" and "bad answer" are different failures</strong>
+                <p>Both show up as an error in the code. Treating them the same is how apps end up hiding genuine errors behind a spinner, or endlessly retrying a request the server will never accept. The distinction here is a single line: <code>if (error.response) return false</code>.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Watch a set survive a dead signal</h2>
+            <p>You are in the basement. Step through what happens to your last set.</p>
+            <div class="flow-animation" data-steps='[
+              {"highlight":"flow-actor-5","label":"You tap Save on set 3. No bars."},
+              {"highlight":"flow-actor-5","label":"The request goes out and nothing answers — not an error, just silence.","packet":true,"from":"actor-5","to":"actor-6"},
+              {"highlight":"flow-actor-6","label":"The doorman checks: no answer, not a replay, and it is a PUT. Into the bag it goes."},
+              {"highlight":"flow-actor-6","label":"Saved into IndexedDB, a small database inside the phone that survives the app closing.","packet":true,"from":"actor-6","to":"actor-7"},
+              {"highlight":"flow-actor-7","label":"The app is told 202 Queued offline, so the screen moves on. You keep training."},
+              {"highlight":"flow-actor-7","label":"You walk upstairs. The browser fires an online event. The drain begins."},
+              {"highlight":"flow-actor-7","label":"Letters are posted oldest first, so set 2 can never land after set 3.","packet":true,"from":"actor-7","to":"actor-8"},
+              {"highlight":"flow-actor-8","label":"The server accepts it. Only then is the letter removed from the bag."},
+              {"highlight":"flow-actor-8","label":"If it fails, it waits 2 seconds, then 4, then 8, then 16 — five tries before giving up loudly."}
+            ]'>
+              <div class="flow-actors">
+                <div class="flow-actor" id="flow-actor-5">
+                  <div class="flow-actor-icon">📱</div>
+                  <span>Your tap</span>
+                </div>
+                <div class="flow-actor" id="flow-actor-6">
+                  <div class="flow-actor-icon">🚪</div>
+                  <span>Doorman</span>
+                </div>
+                <div class="flow-actor" id="flow-actor-7">
+                  <div class="flow-actor-icon">👜</div>
+                  <span>The bag</span>
+                </div>
+                <div class="flow-actor" id="flow-actor-8">
+                  <div class="flow-actor-icon">⚙️</div>
+                  <span>API</span>
+                </div>
+              </div>
+
+              <div class="flow-packet" id="flow-packet-2"></div>
+
+              <div class="flow-step-label" id="flow-label-2">Click "Next Step" to begin</div>
+
+              <div class="flow-controls">
+                <button class="btn flow-next-btn">Next Step</button>
+                <button class="btn flow-reset-btn">Restart</button>
+                <span class="flow-progress"></span>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Posting the letters</h2>
+            <p>The drain loop is short, and every line of it is a decision someone had to make.</p>
+            <div class="translation-block animate-in">
+              <div class="translation-code">
+                <span class="translation-label">CODE</span>
+                <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> all = <span class="code-keyword">await</span> db.<span class="code-function">getAllFromIndex</span>(STORE, <span class="code-string">'queuedAt'</span>)</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">for</span> (<span class="code-keyword">const</span> entry <span class="code-keyword">of</span> all) {</span>
+<span class="code-line">  <span class="code-keyword">let</span> attempts = <span class="code-number">0</span></span>
+<span class="code-line">  <span class="code-keyword">let</span> success = <span class="code-keyword">false</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">while</span> (attempts &lt; <span class="code-number">5</span> &amp;&amp; !success) {</span>
+<span class="code-line">    <span class="code-keyword">try</span> {</span>
+<span class="code-line">      <span class="code-keyword">await</span> <span class="code-function">sendRequest</span>(entry)</span>
+<span class="code-line">      <span class="code-keyword">await</span> db.<span class="code-function">delete</span>(STORE, entry.id)</span>
+<span class="code-line">      success = <span class="code-keyword">true</span></span>
+<span class="code-line">      <span class="code-function">emitChange</span>()</span>
+<span class="code-line">    } <span class="code-keyword">catch</span> {</span>
+<span class="code-line">      attempts++</span>
+<span class="code-line">      <span class="code-keyword">if</span> (attempts &lt; <span class="code-number">5</span>) {</span>
+<span class="code-line">        <span class="code-keyword">await</span> <span class="code-function">delay</span>(Math.<span class="code-function">pow</span>(<span class="code-number">2</span>, attempts) * <span class="code-number">1000</span>)</span>
+<span class="code-line">      }</span>
+<span class="code-line">    }</span>
+<span class="code-line">  }</span>
+                </code></pre>
+              </div>
+              <div class="translation-english">
+                <span class="translation-label">PLAIN ENGLISH</span>
+                <div class="translation-lines">
+                  <p class="tl">Fetch every letter, sorted by when it was written. Order matters: replaying "set 3" before "start workout" would fail for a reason that has nothing to do with the network.</p>
+                  <p class="tl">Take them one at a time.</p>
+                  <p class="tl">Each letter gets its own attempt counter — one stubborn letter must not consume the allowance of the rest.</p>
+                  <p class="tl">Try up to five times, stopping early the moment it works.</p>
+                  <p class="tl">Send it.</p>
+                  <p class="tl"><strong>Delete only after the send succeeded.</strong> Reverse those two lines and a crash between them destroys the set forever.</p>
+                  <p class="tl">Tell the rest of the app the bag changed, so the little "3 pending" badge updates.</p>
+                  <p class="tl">If it failed, count the attempt…</p>
+                  <p class="tl">…and wait before trying again: 2 seconds, then 4, 8, 16. This is <span class="term" data-definition="Exponential backoff means waiting twice as long after each failed attempt. It exists so that when a server is struggling, thousands of clients do not all retry at the same instant and finish it off. Doubling spreads them out automatically.">exponential backoff</span> — hammering a struggling server is how you keep it down.</p>
+                  <p class="tl">After five failures it gives up, warns in the console and fires an event the UI can show. Loudly, not silently.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Why you do not end up with four identical workouts</h2>
+            <p>Retrying a create is dangerous — that was the module 3 quiz. The fix is the field you saw in module 1: <code>idempotencyKey</code>. The phone generates one random ticket number per workout and reuses it on every retry.</p>
+            <div class="translation-block animate-in">
+              <div class="translation-code">
+                <span class="translation-label">CODE</span>
+                <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> existing = <span class="code-keyword">await this</span>.prisma.session.<span class="code-function">findUnique</span>({</span>
+<span class="code-line">  where: { idempotencyKey: dto.idempotencyKey },</span>
+<span class="code-line">});</span>
+<span class="code-line"><span class="code-keyword">if</span> (existing) {</span>
+<span class="code-line">  <span class="code-keyword">if</span> (existing.userId !== userId) {</span>
+<span class="code-line">    <span class="code-keyword">throw new</span> <span class="code-function">ConflictException</span>(<span class="code-string">'Idempotency key already in use'</span>);</span>
+<span class="code-line">  }</span>
+<span class="code-line">  <span class="code-keyword">return</span> existing;</span>
+<span class="code-line">}</span>
+                </code></pre>
+              </div>
+              <div class="translation-english">
+                <span class="translation-label">PLAIN ENGLISH</span>
+                <div class="translation-lines">
+                  <p class="tl">Before creating anything: has a workout with this ticket number already been created?</p>
+                  <p class="tl">If yes…</p>
+                  <p class="tl">…and it belongs to somebody else, refuse. Someone is guessing ticket numbers, or a bug is recycling them.</p>
+                  <p class="tl">Otherwise hand back the workout that already exists. The retry gets the same answer as the original, and no second workout appears.</p>
+                  <p class="tl">This is what <span class="term" data-definition="Idempotent means doing something twice has the same effect as doing it once. Pressing a lift button is idempotent; adding sugar to coffee is not. Making creates idempotent is how apps survive retries, flaky networks and impatient double-taps.">idempotent</span> means, and it is the single most useful word to know when asking an AI assistant to make writes safe to retry.</p>
+                </div>
+              </div>
+            </div>
+            <div class="callout callout-info">
+              <div class="callout-icon">🔒</div>
+              <div class="callout-content">
+                <strong class="callout-title">One more subtlety</strong>
+                <p>Logging out <em>empties</em> the bag. A queued letter carries no identity of its own, so replaying it after a different account signs in would file your sets against their workout. Two lines of code, one very strange bug prevented.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Think it through</h2>
+            <div class="quiz-container" id="quiz-module5">
+              <div class="quiz-question-block"
+                   data-correct="opt-no"
+                   data-explanation-right="Right. A 400 is the server answering — the request is genuinely wrong and will be just as wrong tomorrow. Queueing it hides a real error and guarantees an infinite retry of something that can never succeed."
+                   data-explanation-wrong="Ask whether the server replied. If it did, the network is fine — the request itself is the problem, and no amount of retrying will change that.">
+                <h3 class="quiz-question">A save fails with "400 Bad Request — reps must be at least 1". Should it go in the queue?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-yes" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Yes — any failed save should be retried</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-no" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>No — the server answered, so this is a real error the user must see</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-maybe" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Yes, but only once</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <div class="quiz-question-block"
+                   data-correct="opt-delete-after"
+                   data-explanation-right="Exactly. Delete-then-send means a crash or a failure in between loses the data with no record that it ever existed. Send-then-delete can at worst send twice — and the ticket number already makes that harmless."
+                   data-explanation-wrong="Think about what happens if the app is killed between the two lines. One order loses data permanently; the other risks a duplicate that the idempotency key absorbs.">
+                <h3 class="quiz-question">Your AI assistant rewrites the drain to delete each entry first, then send it — "cleaner", it says. What breaks?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-nothing" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Nothing — the order does not matter</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-delete-after" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>A failure after the delete loses the set forever, with no trace</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-slow" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>It gets slower, because deletes are expensive</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <div class="quiz-question-block"
+                   data-correct="opt-key"
+                   data-explanation-right="Correct. Same ticket number on every attempt means the server can recognise the repeat and hand back the original instead of creating a twin."
+                   data-explanation-wrong="A retry is indistinguishable from a genuine second request unless the request carries something that identifies it as the same one. What in the create form does that?">
+                <h3 class="quiz-question">You are adding a new "log a run" feature and want it to survive bad signal. What must the create request carry?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-time" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>A timestamp, so the server can spot near-duplicates</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-key" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>A ticket number generated once on the phone and reused on every retry</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-flag" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>A flag saying "this is a retry"</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <button class="quiz-check-btn" onclick="checkQuiz('quiz-module5')">Check Answers</button>
+              <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module5')">Try Again</button>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </section>
+    <section class="module" id="module-6" style="background: var(--color-bg)">
+      <div class="module-content">
+        <header class="module-header animate-in">
+          <span class="module-number">06</span>
+          <h1 class="module-title">Shipping It</h1>
+          <p class="module-subtitle">Security lanes, boarding gates, and the meter that runs every time the AI is asked a question.</p>
+        </header>
+
+        <div class="module-body">
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Nobody boards without clearing security</h2>
+            <p>At an airport you do not walk from the kerb onto the plane. You pass through lanes — document check, bag scan, body scan — and the gate only opens for people who cleared all of them.</p>
+            <p>Code takes the same route. Every proposed change runs through four lanes — collectively called <span class="term" data-definition="CI stands for Continuous Integration: every proposed change is automatically built and tested on a clean machine before anyone can merge it. It is the difference between finding a break in ten minutes and finding it in production.">CI</span> — before it is allowed anywhere near real users.</p>
+            <div class="pattern-cards stagger-children">
+              <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-1)">
+                <div class="pattern-icon" style="background: var(--color-actor-1)">📏</div>
+                <h4 class="pattern-title"><span class="term" data-definition="Linting is an automatic check for style and sloppiness — unused variables, inconsistent formatting, patterns known to cause bugs. It does not run your code, it just reads it. Cheapest lane in the pipeline.">Lint</span></h4>
+                <p class="pattern-desc">House style and obvious mistakes. Cheap, fast, catches the silly things.</p>
+              </div>
+              <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+                <div class="pattern-icon" style="background: var(--color-actor-2)">🔎</div>
+                <h4 class="pattern-title">Typecheck</h4>
+                <p class="pattern-desc">"You promised this was a number and handed it a date." Catches whole categories of bug without running anything.</p>
+              </div>
+              <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-3)">
+                <div class="pattern-icon" style="background: var(--color-actor-3)">🧪</div>
+                <h4 class="pattern-title">Tests</h4>
+                <p class="pattern-desc">Unit tests check the rules in isolation; <span class="term" data-definition="E2E stands for end-to-end. An E2E test starts the whole system — real API, real database — and drives it the way a user would, checking that the pieces work together rather than just alone.">e2e</span> tests start a real database and drive the API like a user.</p>
+              </div>
+              <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-5)">
+                <div class="pattern-icon" style="background: var(--color-actor-5)">🛡️</div>
+                <h4 class="pattern-title">Audit</h4>
+                <p class="pattern-desc">Checks the borrowed code this app depends on for publicly known security holes.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">The gate is wired to the lanes</h2>
+            <p>The deploy instructions are a file in the repository. These four lines are the ones that matter.</p>
+            <div class="translation-block animate-in">
+              <div class="translation-code">
+                <span class="translation-label">CODE</span>
+                <pre><code>
+<span class="code-line"><span class="code-property">deploy-frontend</span>:</span>
+<span class="code-line">  <span class="code-property">name</span>: Deploy frontend to GitHub Pages</span>
+<span class="code-line">  <span class="code-property">needs</span>: checks</span>
+<span class="code-line">  <span class="code-property">runs-on</span>: ubuntu-latest</span>
+                </code></pre>
+              </div>
+              <div class="translation-english">
+                <span class="translation-label">PLAIN ENGLISH</span>
+                <div class="translation-lines">
+                  <p class="tl">"Here is the job that publishes the app people actually use."</p>
+                  <p class="tl">A human-readable name, so a failure in the dashboard says something useful.</p>
+                  <p class="tl"><strong>The whole point.</strong> This job does not start until every security lane has passed. One word — <code>needs</code> — is the difference between "we check our code" and "we cannot ship unchecked code".</p>
+                  <p class="tl">And it runs on a fresh rented Linux machine, not on anybody's laptop. Same result every time, no "works on my machine".</p>
+                </div>
+              </div>
+            </div>
+            <div class="callout callout-warning">
+              <div class="callout-icon">⚠️</div>
+              <div class="callout-content">
+                <strong class="callout-title">A gate has consequences</strong>
+                <p>Wire the gate to the lanes and a lane failing for an unrelated reason — a newly published security advisory in borrowed code, say — will stop your deploy dead. That is the system working, not breaking. The fix is to clear the lane, not to unbolt the gate.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Four landlords</h2>
+            <p>Nothing here runs on a computer anyone owns. Four different companies host four different pieces, and each can fail on its own without taking the others down.</p>
+            <p>Click each one to see what it does — and what it looks like when that one is the thing that broke.</p>
+            <div class="arch-diagram">
+              <div class="arch-zone arch-zone-browser">
+                <h4 class="arch-zone-label">On the user's device</h4>
+                <div class="arch-component" data-desc="GitHub Pages — just files: HTML, styling, code. Free to host because nothing runs on their server; it all runs on your phone. If this is broken: nothing loads at all, not even a blank shell.">
+                  <div class="arch-icon">📄</div>
+                  <span>GitHub Pages</span>
+                </div>
+              </div>
+              <div class="arch-zone arch-zone-external">
+                <h4 class="arch-zone-label">Rented machines</h4>
+                <div class="arch-component" data-desc="Render — a machine that stays awake holding the rules and the secrets. It redeploys itself whenever the master branch changes. If this is broken: the app loads and looks fine, but every screen shows an error instead of data.">
+                  <div class="arch-icon">⚙️</div>
+                  <span>Render (API)</span>
+                </div>
+                <div class="arch-component" data-desc="Neon — managed Postgres, kept separate on purpose: servers get replaced, restarted and rebuilt, and your workouts must survive all three. If this is broken: the API is up and answering, but every request that touches data fails.">
+                  <div class="arch-icon">🗄️</div>
+                  <span>Neon (database)</span>
+                </div>
+                <div class="arch-component" data-desc="Google Gemini — the only piece that costs money per use. If this is broken or rate-limited: everything works except the AI review, which is exactly why it is called separately and stored once generated.">
+                  <div class="arch-icon">🤖</div>
+                  <span>Gemini</span>
+                </div>
+              </div>
+              <div class="arch-description" id="arch-desc">Click any piece to learn what it does</div>
+            </div>
+            <p><strong>Debugging by elimination:</strong> "the app is down" is four separate investigations, and the symptom tells you which one. Knowing the landlords turns a panic into a checklist.</p>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">The meter that runs</h2>
+            <p>Every AI review costs real money and takes real seconds. So the limit is checked <em>before</em> the call, not after.</p>
+            <div class="translation-block animate-in">
+              <div class="translation-code">
+                <span class="translation-label">CODE</span>
+                <pre><code>
+<span class="code-line"><span class="code-comment">// Check the daily limit before calling Gemini. The unique constraint below</span></span>
+<span class="code-line"><span class="code-comment">// is still the source of truth — it catches concurrent requests — but</span></span>
+<span class="code-line"><span class="code-comment">// reaching it meant paying for and waiting on a generation we then threw</span></span>
+<span class="code-line"><span class="code-comment">// away.</span></span>
+<span class="code-line"><span class="code-keyword">const</span> alreadyGenerated = <span class="code-keyword">await this</span>.prisma.aiFeedback.<span class="code-function">findFirst</span>({</span>
+<span class="code-line">  where: { userId, generatedAt: { gte: todayStart, lte: todayEnd } },</span>
+<span class="code-line">  select: { id: <span class="code-keyword">true</span> },</span>
+<span class="code-line">});</span>
+<span class="code-line"><span class="code-keyword">if</span> (alreadyGenerated) <span class="code-keyword">throw this</span>.<span class="code-function">rateLimited</span>(todayEnd);</span>
+                </code></pre>
+              </div>
+              <div class="translation-english">
+                <span class="translation-label">PLAIN ENGLISH</span>
+                <div class="translation-lines">
+                  <p class="tl">The comment explains a <em>change</em>, and why it was worth making: the check used to happen after the expensive part.</p>
+                  <p class="tl">It also admits what this check is not — the database rule underneath is still the real referee, because two requests arriving at the same instant can both pass this check.</p>
+                  <p class="tl">So this is an optimisation, not a guarantee. Saying that out loud stops a future reader from deleting the database rule as "redundant".</p>
+                  <p class="tl">Look for any review this person already generated today…</p>
+                  <p class="tl">…and only fetch the id. Pulling the whole review, text and all, to answer a yes/no question is wasted work on every single request.</p>
+                  <p class="tl">If one exists, stop here — before a single token is spent — and tell the caller when they can try again.</p>
+                </div>
+              </div>
+            </div>
+            <div class="callout callout-accent">
+              <div class="callout-icon">💡</div>
+              <div class="callout-content">
+                <strong class="callout-title">Key insight — cheap checks before expensive work</strong>
+                <p>A database lookup costs a millisecond. An AI call costs money and seconds. Ordering them correctly is free. Any time you ask an AI assistant to add a paid API call, ask it the same question: <em>what is the cheapest thing that could stop this call from being made at all?</em></p>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">What you can now do</h2>
+            <p>Six modules ago, a tap on "save" was magic. Here is what it is instead.</p>
+            <div class="step-cards stagger-children">
+              <div class="step-card animate-in">
+                <div class="step-num">1</div>
+                <div class="step-body">
+                  <strong>You can locate a bug</strong>
+                  <p>Wrong number on screen → follow the data backwards. Nothing saves → check whether the server answered at all. Saved but invisible → a stale cache.</p>
+                </div>
+              </div>
+              <div class="step-card animate-in">
+                <div class="step-num">2</div>
+                <div class="step-body">
+                  <strong>You can name what you want</strong>
+                  <p>"Validate at the boundary." "Make this write idempotent." "Invalidate the query after the mutation." "Rotate refresh tokens with reuse detection." Precise words get precise code.</p>
+                </div>
+              </div>
+              <div class="step-card animate-in">
+                <div class="step-num">3</div>
+                <div class="step-body">
+                  <strong>You can catch a bad suggestion</strong>
+                  <p>Secrets in the frontend. A limit enforced only in the UI. Delete-then-send. A security check copy-pasted into three files. You have seen why each one is wrong.</p>
+                </div>
+              </div>
+              <div class="step-card animate-in">
+                <div class="step-num">4</div>
+                <div class="step-body">
+                  <strong>You can ask for the boring parts</strong>
+                  <p>Tests, a typecheck, an audit, a deploy gate. The unglamorous machinery is what lets you change things quickly without fear.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Think it through</h2>
+            <div class="quiz-container" id="quiz-module6">
+              <div class="quiz-question-block"
+                   data-correct="opt-fix"
+                   data-explanation-right="Right. The gate exists precisely for the moments when it is inconvenient. Clear the lane — upgrade the dependency, or record a documented, specific exception — and the gate opens on its own."
+                   data-explanation-wrong="Consider what removing the gate costs you later. It is not one deploy — it is every future deploy, including the one that would have caught something real.">
+                <h3 class="quiz-question">A security advisory in a borrowed library turns the audit lane red. Your deploy is blocked and the fix is a big upgrade. What do you do?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-remove" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Remove the audit lane — it is noise</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-fix" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Upgrade what can be upgraded, and record a narrow documented exception for what cannot</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-lower" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Lower the severity threshold so nothing fails the lane again</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <div class="quiz-question-block"
+                   data-correct="opt-before"
+                   data-explanation-right="Exactly. Check the cheap thing first. A database lookup before a paid call is the difference between a bill you control and one you discover at the end of the month."
+                   data-explanation-wrong="Think about what you are paying for. Once the external call has been made, the money is spent — no matter what you do with the answer afterwards.">
+                <h3 class="quiz-question">You add a feature that calls a paid image API. Where does the "3 per day" limit go?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-after" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>After the call, when saving the result</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-before" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Before the call, with a database rule underneath as the real referee</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-ui" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>In the app, by hiding the button after three</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <div class="quiz-question-block"
+                   data-correct="opt-api"
+                   data-explanation-right="Correct. Pages is serving files fine — that is why the screen appears. The failing part is the program that answers requests, or the database behind it."
+                   data-explanation-wrong="Separate what worked from what did not. The app appeared on screen, so the files were delivered. Something later in the chain is refusing.">
+                <h3 class="quiz-question">Users report: the app loads and looks normal, but every screen shows an error instead of data. Which landlord do you check first?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-pages" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>GitHub Pages — the app is broken</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-api" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Render, then Neon — the files arrived, the answers did not</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-dns" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Nothing to check — users are offline</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <button class="quiz-check-btn" onclick="checkQuiz('quiz-module6')">Check Answers</button>
+              <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module6')">Try Again</button>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+</body>
+</html>

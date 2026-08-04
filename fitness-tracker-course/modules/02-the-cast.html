@@ -1,0 +1,314 @@
+    <section class="module" id="module-2" style="background: var(--color-bg)">
+      <div class="module-content">
+        <header class="module-header animate-in">
+          <span class="module-number">02</span>
+          <h1 class="module-title">The Cast</h1>
+          <p class="module-subtitle">Every file in this project has exactly one job. Learn the job titles and the codebase stops looking like a pile.</p>
+        </header>
+
+        <div class="module-body">
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">A film crew, not a one-man band</h2>
+            <p>On a film set nobody does everything. The camera operator does not write dialogue; the editor never touches a light. The crew is <em>specialised</em>, and that is why a scene can be re-shot without rebuilding the whole production.</p>
+            <p>This codebase is organised the same way. Each of the roles below appears over and over, in every feature.</p>
+            <div class="icon-rows stagger-children">
+              <div class="icon-row animate-in">
+                <div class="icon-circle" style="background: var(--color-actor-1)">🎬</div>
+                <div>
+                  <strong>Controller — the receptionist</strong>
+                  <p>Takes the incoming request, checks the caller is logged in, and hands it to the right specialist. Contains no thinking of its own.</p>
+                </div>
+              </div>
+              <div class="icon-row animate-in">
+                <div class="icon-circle" style="background: var(--color-actor-2)">🧠</div>
+                <div>
+                  <strong>Service — where the rules live</strong>
+                  <p>"You cannot log a warmup on a kickboxing day." "One AI review per day." All the real decisions happen here.</p>
+                </div>
+              </div>
+              <div class="icon-row animate-in">
+                <div class="icon-circle" style="background: var(--color-actor-3)">📋</div>
+                <div>
+                  <strong><span class="term" data-definition="DTO stands for Data Transfer Object. It is a written description of the shape of data moving between two programs — which fields exist, what type each one is, which are required. The server checks incoming requests against it and rejects anything that does not fit.">DTO</span> — the entry form</strong>
+                  <p>A written description of what an incoming request is allowed to contain. Anything that does not match is rejected before it reaches the rules.</p>
+                </div>
+              </div>
+              <div class="icon-row animate-in">
+                <div class="icon-circle" style="background: var(--color-actor-4)">🗄️</div>
+                <div>
+                  <strong>Prisma — the archivist</strong>
+                  <p>The only part of the backend allowed to touch the database. Everything else asks it politely.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">The receptionist, in real code</h2>
+            <p>Here is the actual function that handles "start a new workout". Notice how little it does.</p>
+            <div class="translation-block animate-in">
+              <div class="translation-code">
+                <span class="translation-label">CODE</span>
+                <pre><code>
+<span class="code-line"><span class="code-keyword">@Controller</span>(<span class="code-string">'sessions'</span>)</span>
+<span class="code-line"><span class="code-keyword">@UseGuards</span>(JwtAuthGuard)</span>
+<span class="code-line"><span class="code-keyword">export class</span> <span class="code-function">SessionsController</span> {</span>
+<span class="code-line">  <span class="code-comment">// ...</span></span>
+<span class="code-line">  <span class="code-keyword">@Post</span>()</span>
+<span class="code-line">  <span class="code-function">create</span>(<span class="code-keyword">@CurrentUser</span>() u: { id: <span class="code-keyword">string</span> }, <span class="code-keyword">@Body</span>() dto: CreateSessionDto) {</span>
+<span class="code-line">    <span class="code-keyword">return this</span>.sessionsService.<span class="code-function">create</span>(u.id, dto);</span>
+<span class="code-line">  }</span>
+                </code></pre>
+              </div>
+              <div class="translation-english">
+                <span class="translation-label">PLAIN ENGLISH</span>
+                <div class="translation-lines">
+                  <p class="tl">"Everything in this file answers requests whose address starts with <code>/sessions</code>."</p>
+                  <p class="tl">"And <em>nobody</em> gets past this door without a valid pass." This is a <span class="term" data-definition="A guard is a piece of code that runs before a request reaches your function and can turn it away. Attach it once at the top of a file and it protects every function in that file — which is why security checks are written as guards instead of if-statements you have to remember.">guard</span>: one line, applied to every function below it, so you cannot forget it on one of them.</p>
+                  <p class="tl">The receptionist's name badge.</p>
+                  <p class="tl">"This next function handles POST — the verb browsers use for <em>create something new</em>."</p>
+                  <p class="tl">Two things get handed in: who is asking (pulled from their pass, never from the request body — that would let anyone claim to be anyone) and what they sent.</p>
+                  <p class="tl">And then it immediately delegates. That is the whole job. A receptionist who starts making medical decisions is a bug.</p>
+                </div>
+              </div>
+            </div>
+            <div class="callout callout-accent">
+              <div class="callout-icon">💡</div>
+              <div class="callout-content">
+                <strong class="callout-title">Key insight — separation of concerns</strong>
+                <p>Thin receptionist, thick specialist. When rules live in services instead of controllers, the same rule can be reused by three different doors — and tested without pretending to be a web browser.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Where everything lives</h2>
+            <p>Two folders, two casts. You will spend most of your time in one of these eight places.</p>
+            <div class="file-tree">
+              <div class="ft-folder open">
+                <span class="ft-name">backend/src/</span>
+                <span class="ft-desc">The program running on the rented server</span>
+                <div class="ft-children">
+                  <div class="ft-folder">
+                    <span class="ft-name">auth/</span>
+                    <span class="ft-desc">Signup, login, passes and refreshes</span>
+                  </div>
+                  <div class="ft-folder">
+                    <span class="ft-name">sessions/</span>
+                    <span class="ft-desc">Workouts, sets and rounds — the heart of the app</span>
+                  </div>
+                  <div class="ft-folder">
+                    <span class="ft-name">templates/</span>
+                    <span class="ft-desc">Your weekly plan: which day is gym, which is kickboxing</span>
+                  </div>
+                  <div class="ft-folder">
+                    <span class="ft-name">feedback/</span>
+                    <span class="ft-desc">Talks to Google's Gemini and stores the review</span>
+                  </div>
+                </div>
+              </div>
+              <div class="ft-folder open">
+                <span class="ft-name">frontend/src/</span>
+                <span class="ft-desc">The program running on your phone</span>
+                <div class="ft-children">
+                  <div class="ft-folder">
+                    <span class="ft-name">pages/</span>
+                    <span class="ft-desc">One file per screen: Dashboard, History, Progress, Session…</span>
+                  </div>
+                  <div class="ft-folder">
+                    <span class="ft-name">hooks/</span>
+                    <span class="ft-desc">Reusable "fetch this and keep it fresh" logic</span>
+                  </div>
+                  <div class="ft-folder">
+                    <span class="ft-name">api/</span>
+                    <span class="ft-desc">The list of every request the phone knows how to send</span>
+                  </div>
+                  <div class="ft-folder">
+                    <span class="ft-name">store/</span>
+                    <span class="ft-desc">The few facts every screen needs at once, like who is logged in</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">One rule, one home</h2>
+            <p>Sessions, sets and rounds all need the same check: <em>is this workout actually yours?</em> It used to be written three times. Now it is written once, and the comment above it explains why that matters more than tidiness.</p>
+            <div class="translation-block animate-in">
+              <div class="translation-code">
+                <span class="translation-label">CODE</span>
+                <pre><code>
+<span class="code-line"><span class="code-keyword">export async function</span> <span class="code-function">assertSessionOwned</span>(</span>
+<span class="code-line">  prisma: PrismaService,</span>
+<span class="code-line">  userId: <span class="code-keyword">string</span>,</span>
+<span class="code-line">  sessionId: <span class="code-keyword">string</span>,</span>
+<span class="code-line">) {</span>
+<span class="code-line">  <span class="code-keyword">const</span> session = <span class="code-keyword">await</span> prisma.session.<span class="code-function">findUnique</span>({ where: { id: sessionId } });</span>
+<span class="code-line">  <span class="code-keyword">if</span> (!session || session.userId !== userId) <span class="code-keyword">throw new</span> <span class="code-function">NotFoundException</span>();</span>
+<span class="code-line">  <span class="code-keyword">return</span> session;</span>
+<span class="code-line">}</span>
+                </code></pre>
+              </div>
+              <div class="translation-english">
+                <span class="translation-label">PLAIN ENGLISH</span>
+                <div class="translation-lines">
+                  <p class="tl">"Insist that this workout belongs to this person." The name is a sentence — good names save you reading the body.</p>
+                  <p class="tl">It needs the archivist, the person asking, and the workout in question.</p>
+                  <p class="tl">Go and fetch that one workout by its id.</p>
+                  <p class="tl">If it does not exist <em>or</em> it belongs to somebody else — same answer: "not found."</p>
+                  <p class="tl">Notice it does not say "forbidden". "Forbidden" would quietly confirm the workout exists, letting a stranger map out other people's data by guessing ids. "Not found" tells them nothing.</p>
+                  <p class="tl">Otherwise, hand back the workout so the caller does not have to fetch it twice.</p>
+                </div>
+              </div>
+            </div>
+            <div class="callout callout-warning">
+              <div class="callout-icon">⚠️</div>
+              <div class="callout-content">
+                <strong class="callout-title">The mistake this prevents</strong>
+                <p>When the same security check is copy-pasted into three files, someone eventually fixes a bug in one copy. The other two keep shipping. A rule with three homes is a rule with two exploits.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">The phone-side cast</h2>
+            <p>The frontend has its own division of labour. This is the entire "who is logged in" store — small on purpose.</p>
+            <div class="translation-block animate-in">
+              <div class="translation-code">
+                <span class="translation-label">CODE</span>
+                <pre><code>
+<span class="code-line"><span class="code-comment">// Access token is kept in memory only. On page reload the refresh-token</span></span>
+<span class="code-line"><span class="code-comment">// HTTP-only cookie is used to re-issue an access token via /auth/refresh.</span></span>
+<span class="code-line"><span class="code-keyword">export const</span> useAuthStore = create&lt;AuthStore&gt;()((set) =&gt; ({</span>
+<span class="code-line">  <span class="code-property">accessToken</span>: <span class="code-keyword">null</span>,</span>
+<span class="code-line">  <span class="code-property">setToken</span>: (token) =&gt; <span class="code-function">set</span>({ accessToken: token }),</span>
+<span class="code-line">  <span class="code-property">clearToken</span>: () =&gt; <span class="code-function">set</span>({ accessToken: <span class="code-keyword">null</span> }),</span>
+<span class="code-line">}))</span>
+                </code></pre>
+              </div>
+              <div class="translation-english">
+                <span class="translation-label">PLAIN ENGLISH</span>
+                <div class="translation-lines">
+                  <p class="tl">The comment is doing real work: it explains a deliberate choice, not what the code says. Keep the pass <em>in memory only</em> — never written to disk.</p>
+                  <p class="tl">Why? Anything written to phone storage can be read by other scripts on the page. Losing it on refresh is the price; module 4 shows how the app recovers.</p>
+                  <p class="tl">Create a shared box that every screen can read from and write to.</p>
+                  <p class="tl">It starts empty — nobody is logged in when the app opens.</p>
+                  <p class="tl">Two things you can do to it: put a pass in…</p>
+                  <p class="tl">…or throw the pass away, which is what logging out means on this side.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Match the role to the job</h2>
+            <p>Drag each cast member onto the job they actually do.</p>
+            <div class="dnd-container" id="dnd-module2">
+              <div class="dnd-chips">
+                <div class="dnd-chip" draggable="true" data-answer="controller">Controller</div>
+                <div class="dnd-chip" draggable="true" data-answer="service">Service</div>
+                <div class="dnd-chip" draggable="true" data-answer="dto">DTO</div>
+                <div class="dnd-chip" draggable="true" data-answer="hook">Hook</div>
+              </div>
+              <div class="dnd-zones">
+                <div class="dnd-zone" data-correct="controller">
+                  <p class="dnd-zone-label">Answers a web address, checks the pass, delegates immediately</p>
+                  <div class="dnd-zone-target">Drop here</div>
+                </div>
+                <div class="dnd-zone" data-correct="service">
+                  <p class="dnd-zone-label">Holds the business rules — "one review per day", "no warmup on kickboxing days"</p>
+                  <div class="dnd-zone-target">Drop here</div>
+                </div>
+                <div class="dnd-zone" data-correct="dto">
+                  <p class="dnd-zone-label">Describes what an incoming request is allowed to contain, and rejects the rest</p>
+                  <div class="dnd-zone-target">Drop here</div>
+                </div>
+                <div class="dnd-zone" data-correct="hook">
+                  <p class="dnd-zone-label">On the phone: fetches data for a screen and keeps it fresh</p>
+                  <div class="dnd-zone-target">Drop here</div>
+                </div>
+              </div>
+              <button class="btn" onclick="checkDnD('dnd-module2')">Check Matches</button>
+              <button class="btn" onclick="resetDnD('dnd-module2')">Reset</button>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Think it through</h2>
+            <div class="quiz-container" id="quiz-module2">
+              <div class="quiz-question-block"
+                   data-correct="opt-service"
+                   data-explanation-right="Right. Limits are a rule, and rules live in the service. Put it in the controller and the next door into the same feature skips it entirely."
+                   data-explanation-wrong="Ask yourself: is this a decision, or is it plumbing? A cap on how many workouts someone can log is a decision about the product — and decisions live with the rules.">
+                <h3 class="quiz-question">You want to add: "a user may log at most 3 workouts per day." Which cast member should own that rule?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-controller" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>The controller — it sees the request first</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-service" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>The service — it is a business rule</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-frontend" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>The phone — hide the button after the third workout</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <div class="quiz-question-block"
+                   data-correct="opt-both"
+                   data-explanation-right="Exactly. Hiding the button is good manners; enforcing it on the server is what actually holds. Anyone can bypass your screen and talk to the API directly — the phone is not a security boundary."
+                   data-explanation-wrong="Remember where each program runs. The frontend is downloaded onto the user's device, so the user controls it completely — including the ability to send requests your UI never offers.">
+                <h3 class="quiz-question">Your AI assistant implements that limit by disabling the button in the app once you hit three. Is that enough?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-yes" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Yes — if the button is gone, nobody can do it</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-both" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>No — the server must enforce it too; the UI change is just politeness</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-db" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>No — the database should reject the fourth row</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <div class="quiz-question-block"
+                   data-correct="opt-service2"
+                   data-explanation-right="Yes. The screen is the symptom, not the cause. Data problems almost always trace back to the rules layer or the database call underneath it."
+                   data-explanation-wrong="A wrong number on screen usually means wrong data arrived, not wrong pixels. Start where the number is computed, not where it is displayed.">
+                <h3 class="quiz-question">The history screen shows a workout with the wrong date. Where do you look first?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-page" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>The page file — it draws the list</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-service2" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Follow the data backwards: hook → API call → service → database</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-css" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>The styling — dates are probably formatted there</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+              <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </section>

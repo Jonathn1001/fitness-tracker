@@ -1,0 +1,262 @@
+    <section class="module" id="module-4" style="background: var(--color-bg)">
+      <div class="module-content">
+        <header class="module-header animate-in">
+          <span class="module-number">04</span>
+          <h1 class="module-title">Proving Who You Are</h1>
+          <p class="module-subtitle">A day pass, a membership card, and what the system does when it notices a card has been cloned.</p>
+        </header>
+
+        <div class="module-body">
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Two pieces of plastic</h2>
+            <p>Think about a real gym. You have a <strong>membership card</strong> that lasts a year and lives in your wallet. At the desk it gets swapped for a <strong>day pass</strong> — a flimsy thing that stops working tonight, which you show at every door inside.</p>
+            <p>This app issues exactly those two things, for exactly the same reason.</p>
+            <div class="pattern-cards stagger-children">
+              <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-1)">
+                <div class="pattern-icon" style="background: var(--color-actor-1)">🎫</div>
+                <h4 class="pattern-title">Access <span class="term" data-definition="A token is a string of characters that proves you are allowed to do something — like a ticket stub. The server can check it is genuine without looking anything up, because it is signed with a secret only the server knows.">token</span> — the day pass</h4>
+                <p class="pattern-desc">Lives <strong>15 minutes</strong>. Attached to every single request. Kept in the phone's memory only, never written to disk.</p>
+              </div>
+              <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+                <div class="pattern-icon" style="background: var(--color-actor-2)">💳</div>
+                <h4 class="pattern-title">Refresh token — the membership card</h4>
+                <p class="pattern-desc">Lives <strong>7 days</strong>. Used only to get a new day pass. Stored in an <span class="term" data-definition="An HTTP-only cookie is a small piece of data the browser stores and sends back automatically, but which JavaScript on the page is forbidden to read. That restriction is the point: even a malicious script injected into the page cannot steal it.">HTTP-only cookie</span> the app's own code cannot read.</p>
+              </div>
+            </div>
+            <div class="callout callout-accent">
+              <div class="callout-icon">💡</div>
+              <div class="callout-content">
+                <strong class="callout-title">Why not one long-lived pass?</strong>
+                <p>Because stolen passes are the normal case, not the exception. A 15-minute pass is worth almost nothing to a thief; a card that lives in a place scripts cannot reach is hard to steal in the first place. Short life plus limited reach — that is the entire design.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Your password is never stored</h2>
+            <p>The database does not contain your password. It contains the result of putting your password through a one-way blender.</p>
+            <div class="translation-block animate-in">
+              <div class="translation-code">
+                <span class="translation-label">CODE</span>
+                <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> hashed = <span class="code-keyword">await</span> bcrypt.<span class="code-function">hash</span>(dto.password, <span class="code-number">12</span>);</span>
+<span class="code-line"><span class="code-keyword">const</span> user = <span class="code-keyword">await</span> <span class="code-keyword">this</span>.prisma.user.<span class="code-function">create</span>({</span>
+<span class="code-line">  data: { email: dto.email, password: hashed, name: dto.name },</span>
+<span class="code-line">});</span>
+                </code></pre>
+              </div>
+              <div class="translation-english">
+                <span class="translation-label">PLAIN ENGLISH</span>
+                <div class="translation-lines">
+                  <p class="tl">Run the password through <span class="term" data-definition="bcrypt is a password hashing function. It scrambles a password into a fixed-length string that cannot be unscrambled — you can only take a fresh guess, scramble it the same way, and compare. It is also deliberately slow, which makes guessing billions of passwords impractical.">bcrypt</span>, a scrambler that cannot be run backwards.</p>
+                  <p class="tl">The 12 is a cost setting: it makes each scramble take a noticeable fraction of a second. Annoying once at login, ruinous for someone trying a billion guesses.</p>
+                  <p class="tl">Store the scrambled version. If this database ever leaks, the attacker gets gibberish, not logins.</p>
+                  <p class="tl">Checking a login later means scrambling the attempt and comparing the two results — the original is never recovered, by anyone, including this app.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">The cloned card</h2>
+            <p>Every time you swap your membership card for a fresh day pass, the old card is <em>destroyed</em> and a new one issued. So if an old, already-destroyed card ever shows up at the desk, exactly one thing is true: someone copied it.</p>
+            <div class="translation-block animate-in">
+              <div class="translation-code">
+                <span class="translation-label">CODE</span>
+                <pre><code>
+<span class="code-line"><span class="code-keyword">if</span> (stored.revoked) {</span>
+<span class="code-line">  <span class="code-comment">// Reuse of a revoked token — likely stolen. Revoke the whole family.</span></span>
+<span class="code-line">  <span class="code-keyword">this</span>.logger.<span class="code-function">warn</span>(</span>
+<span class="code-line">    <span class="code-string">`Refresh token reuse detected for user ${payload.sub} (token ${stored.id}). Revoking family.`</span>,</span>
+<span class="code-line">  );</span>
+<span class="code-line">  <span class="code-keyword">await this</span>.prisma.refreshToken.<span class="code-function">updateMany</span>({</span>
+<span class="code-line">    where: { userId: payload.sub, revoked: <span class="code-keyword">false</span> },</span>
+<span class="code-line">    data: { revoked: <span class="code-keyword">true</span> },</span>
+<span class="code-line">  });</span>
+<span class="code-line">  <span class="code-keyword">throw new</span> <span class="code-function">UnauthorizedException</span>(<span class="code-string">'Refresh token reuse detected'</span>);</span>
+<span class="code-line">}</span>
+                </code></pre>
+              </div>
+              <div class="translation-english">
+                <span class="translation-label">PLAIN ENGLISH</span>
+                <div class="translation-lines">
+                  <p class="tl">"Someone just presented a card we already destroyed."</p>
+                  <p class="tl">The comment states the conclusion, not the mechanics — the honest owner and a thief both hold a copy, and we cannot tell which one is standing here.</p>
+                  <p class="tl">Write a warning to the log with the user id and the card id. Note what is <em>not</em> logged: no email, no name, no token value. Logs get shipped to other systems and read by other people.</p>
+                  <p class="tl">So destroy <em>every</em> card this user currently holds…</p>
+                  <p class="tl">…in one sweep.</p>
+                  <p class="tl">And refuse this request. Both the thief and the real owner get logged out; the owner signs in again with their password, which the thief does not have. Momentary annoyance beats a silent intruder.</p>
+                </div>
+              </div>
+            </div>
+            <div class="callout callout-info">
+              <div class="callout-icon">🔍</div>
+              <div class="callout-content">
+                <strong class="callout-title">This pattern has a name</strong>
+                <p>It is called <em>refresh token rotation with reuse detection</em>. Saying that phrase to an AI assistant gets you this whole design in one shot; asking for "make login secure" gets you a coin flip.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Spot the bug</h2>
+            <p>Below is a login check of the kind that appears in a thousand tutorials. One line makes the entire scheme from the last two screens pointless. Click it.</p>
+            <div class="bug-challenge">
+              <h3>Find the line that breaks security:</h3>
+              <div class="bug-code">
+                <div class="bug-line" data-line="1"
+                     data-hint="Looking up the account by email is exactly right — and going through Prisma means the email can never be smuggled in as a database command. Keep looking."
+                     onclick="checkBugLine(this, false)">
+                  <span class="line-num">1</span>
+                  <code>const user = await this.prisma.user.findUnique({ where: { email: dto.email } });</code>
+                </div>
+                <div class="bug-line" data-line="2"
+                     data-hint="This one is actually good practice — the message says &apos;invalid credentials&apos; rather than &apos;no such email&apos;, so nobody can use the login form to discover which emails have accounts."
+                     onclick="checkBugLine(this, false)">
+                  <span class="line-num">2</span>
+                  <code>if (!user) throw new UnauthorizedException('Invalid credentials');</code>
+                </div>
+                <div class="bug-line bug-target" data-line="3"
+                     data-explanation="This compares the typed password directly against what is stored. That can only ever succeed if the stored password was never scrambled — meaning the database holds everyone&apos;s real password in readable form. One leak and every account is gone, including accounts on other sites where people reused the password."
+                     onclick="checkBugLine(this, true)">
+                  <span class="line-num">3</span>
+                  <code>const valid = dto.password === user.password;</code>
+                </div>
+                <div class="bug-line" data-line="4"
+                     data-hint="Same wording as line 2, on purpose: a wrong password and a missing account are indistinguishable from outside. That is deliberate, not sloppy."
+                     onclick="checkBugLine(this, false)">
+                  <span class="line-num">4</span>
+                  <code>if (!valid) throw new UnauthorizedException('Invalid credentials');</code>
+                </div>
+                <div class="bug-line" data-line="5"
+                     data-hint="Issuing the day pass and the membership card only after the check passes is the correct order. The problem is further up — in how the check itself is done."
+                     onclick="checkBugLine(this, false)">
+                  <span class="line-num">5</span>
+                  <code>return this.issueTokens(user.id, user.email);</code>
+                </div>
+              </div>
+              <div class="bug-feedback" id="bug-feedback"></div>
+            </div>
+            <p>The real file uses <code>await bcrypt.compare(dto.password, user.password)</code> — scramble the attempt, compare the scrambles. A plain <code>===</code> only works if the stored password was never scrambled at all, which means the database is holding everyone's real password in plain sight.</p>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Why the app never asks you to log in twice</h2>
+            <p>Your day pass expires every 15 minutes, but you never notice. That is one piece of code doing the swap silently in the background.</p>
+            <div class="step-cards stagger-children">
+              <div class="step-card animate-in">
+                <div class="step-num">1</div>
+                <div class="step-body">
+                  <strong>A request comes back rejected</strong>
+                  <p>The server answers <span class="term" data-definition="401 Unauthorized is the standard code a server sends when it does not accept who you claim to be — missing or expired credentials. Its sibling 403 Forbidden means the opposite: it knows who you are and you still may not do this.">401</span> — "your pass is no good any more".</p>
+                </div>
+              </div>
+              <div class="step-card animate-in">
+                <div class="step-num">2</div>
+                <div class="step-body">
+                  <strong>The app quietly visits the desk</strong>
+                  <p>It calls <code>/auth/refresh</code>. The membership card rides along automatically in the cookie — no code has to fetch it.</p>
+                </div>
+              </div>
+              <div class="step-card animate-in">
+                <div class="step-num">3</div>
+                <div class="step-body">
+                  <strong>Everyone else waits in line</strong>
+                  <p>If five requests fail at once, only <em>one</em> refresh happens. The other four queue up and are handed the new pass. Without that, five refreshes race, four cards get destroyed, and reuse detection logs you out for no reason.</p>
+                </div>
+              </div>
+              <div class="step-card animate-in">
+                <div class="step-num">4</div>
+                <div class="step-body">
+                  <strong>The original request is retried</strong>
+                  <p>With the fresh pass attached. You saw nothing but a slightly slower save.</p>
+                </div>
+              </div>
+              <div class="step-card animate-in">
+                <div class="step-num">5</div>
+                <div class="step-body">
+                  <strong>Unless the card is dead too</strong>
+                  <p>Then the pass is thrown away and you land on the login screen — the only time you ever see this machinery.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Think it through</h2>
+            <div class="quiz-container" id="quiz-module4">
+              <div class="quiz-question-block"
+                   data-correct="opt-15"
+                   data-explanation-right="Right. The pass is attached to every request and lives in memory where scripts can reach it, so it is the piece most likely to leak — and the piece designed to be worthless within minutes."
+                   data-explanation-wrong="Think about which of the two is sent constantly and which is locked in a place page scripts cannot read at all.">
+                <h3 class="quiz-question">An attacker steals one of the two credentials. Which one hurts less, and why?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-15" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>The access token — it dies in 15 minutes</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-refresh" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>The refresh token — it is only used on one endpoint</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-same" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Identical damage — both prove who you are</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <div class="quiz-question-block"
+                   data-correct="opt-family"
+                   data-explanation-right="Exactly. An old card resurfacing means a copy exists somewhere. Since the desk cannot tell the copy from the original, it destroys them all and makes the one who knows the password start again."
+                   data-explanation-wrong="Consider what a destroyed card being presented actually proves. Somebody kept a copy — and there is no way to tell from the counter which of the two people holding it is the owner.">
+                <h3 class="quiz-question">Your own laptop, still logged in from last week, suddenly gets kicked to the login screen. What most likely happened?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-expired" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>The 7-day card simply expired</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-family" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Reuse of an old card was detected, so every card was destroyed</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-bug" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>A bug — logins should never end on their own</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <div class="quiz-question-block"
+                   data-correct="opt-id"
+                   data-explanation-right="Correct. Log identifiers, never values. An id lets you investigate; an email in a log file is personal data sitting somewhere it was never meant to live."
+                   data-explanation-wrong="Logs get copied into monitoring tools, searched by other people, and kept for months. Ask what the smallest thing is that still lets you find the account later.">
+                <h3 class="quiz-question">You are adding a log line for failed logins. What should it contain?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-email" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>The email address, so you can see who is struggling</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-pw" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>The attempted password, to spot typos and bots</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-id" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>The user id and a reason code — no personal data</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <button class="quiz-check-btn" onclick="checkQuiz('quiz-module4')">Check Answers</button>
+              <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module4')">Try Again</button>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </section>

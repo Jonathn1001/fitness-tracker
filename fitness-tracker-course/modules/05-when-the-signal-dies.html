@@ -1,0 +1,265 @@
+    <section class="module" id="module-5" style="background: var(--color-bg-warm)">
+      <div class="module-content">
+        <header class="module-header animate-in">
+          <span class="module-number">05</span>
+          <h1 class="module-title">When The Signal Dies</h1>
+          <p class="module-subtitle">Basement gyms have no bars. The app is built so that stops mattering.</p>
+        </header>
+
+        <div class="module-body">
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">The letters in your bag</h2>
+            <p>You write letters all week while travelling. There is no postbox. You do not throw them away and you do not stand in the street waiting — you put them in your bag, and post the lot when you pass a postbox.</p>
+            <p>That is the entire offline design. Nothing is lost, nothing blocks, and the sending happens later without you thinking about it.</p>
+            <p>Before this existed, the finish button failed <em>silently</em> underground: the set looked saved, the screen moved on, and the workout was gone. Silent data loss is the worst class of bug there is — nobody reports it, because nobody notices.</p>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Which letters go in the bag?</h2>
+            <p>Not every failed request belongs in a queue. This function is the doorman, and its three refusals are more interesting than its acceptance.</p>
+            <div class="translation-block animate-in">
+              <div class="translation-code">
+                <span class="translation-label">CODE</span>
+                <pre><code>
+<span class="code-line"><span class="code-keyword">export function</span> <span class="code-function">shouldQueue</span>(error: {</span>
+<span class="code-line">  response?: <span class="code-keyword">unknown</span></span>
+<span class="code-line">  config?: QueueableConfig</span>
+<span class="code-line">}): <span class="code-keyword">boolean</span> {</span>
+<span class="code-line">  <span class="code-keyword">const</span> config = error.config</span>
+<span class="code-line">  <span class="code-keyword">if</span> (!config) <span class="code-keyword">return false</span></span>
+<span class="code-line">  <span class="code-keyword">if</span> (error.response) <span class="code-keyword">return false</span></span>
+<span class="code-line">  <span class="code-keyword">if</span> (config.__isReplay) <span class="code-keyword">return false</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">const</span> method = config.method?.<span class="code-function">toLowerCase</span>()</span>
+<span class="code-line">  <span class="code-keyword">return</span> !!method &amp;&amp; QUEUEABLE_METHODS.<span class="code-function">has</span>(method)</span>
+<span class="code-line">}</span>
+                </code></pre>
+              </div>
+              <div class="translation-english">
+                <span class="translation-label">PLAIN ENGLISH</span>
+                <div class="translation-lines">
+                  <p class="tl">"Given a request that just failed — does it belong in the bag?"</p>
+                  <p class="tl">No description of the request at all? Nothing to replay later. Refuse.</p>
+                  <p class="tl"><strong>The important one.</strong> If the server <em>answered</em> — even to say "that is invalid" — this is not a signal problem. Queueing it would hide a real error from the user and replay a request the server already refused. Refuse.</p>
+                  <p class="tl">If this failure came from replaying the bag, do not put it back in the bag. Without this line every drain adds a fresh copy and the queue grows forever.</p>
+                  <p class="tl">Finally, look at the verb.</p>
+                  <p class="tl">Only POST, PUT, PATCH and DELETE qualify — the verbs that <em>change</em> something. A failed read is not worth saving; the screen can just ask again later.</p>
+                </div>
+              </div>
+            </div>
+            <div class="callout callout-accent">
+              <div class="callout-icon">💡</div>
+              <div class="callout-content">
+                <strong class="callout-title">Key insight — "no answer" and "bad answer" are different failures</strong>
+                <p>Both show up as an error in the code. Treating them the same is how apps end up hiding genuine errors behind a spinner, or endlessly retrying a request the server will never accept. The distinction here is a single line: <code>if (error.response) return false</code>.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Watch a set survive a dead signal</h2>
+            <p>You are in the basement. Step through what happens to your last set.</p>
+            <div class="flow-animation" data-steps='[
+              {"highlight":"flow-actor-5","label":"You tap Save on set 3. No bars."},
+              {"highlight":"flow-actor-5","label":"The request goes out and nothing answers — not an error, just silence.","packet":true,"from":"actor-5","to":"actor-6"},
+              {"highlight":"flow-actor-6","label":"The doorman checks: no answer, not a replay, and it is a PUT. Into the bag it goes."},
+              {"highlight":"flow-actor-6","label":"Saved into IndexedDB, a small database inside the phone that survives the app closing.","packet":true,"from":"actor-6","to":"actor-7"},
+              {"highlight":"flow-actor-7","label":"The app is told 202 Queued offline, so the screen moves on. You keep training."},
+              {"highlight":"flow-actor-7","label":"You walk upstairs. The browser fires an online event. The drain begins."},
+              {"highlight":"flow-actor-7","label":"Letters are posted oldest first, so set 2 can never land after set 3.","packet":true,"from":"actor-7","to":"actor-8"},
+              {"highlight":"flow-actor-8","label":"The server accepts it. Only then is the letter removed from the bag."},
+              {"highlight":"flow-actor-8","label":"If it fails, it waits 2 seconds, then 4, then 8, then 16 — five tries before giving up loudly."}
+            ]'>
+              <div class="flow-actors">
+                <div class="flow-actor" id="flow-actor-5">
+                  <div class="flow-actor-icon">📱</div>
+                  <span>Your tap</span>
+                </div>
+                <div class="flow-actor" id="flow-actor-6">
+                  <div class="flow-actor-icon">🚪</div>
+                  <span>Doorman</span>
+                </div>
+                <div class="flow-actor" id="flow-actor-7">
+                  <div class="flow-actor-icon">👜</div>
+                  <span>The bag</span>
+                </div>
+                <div class="flow-actor" id="flow-actor-8">
+                  <div class="flow-actor-icon">⚙️</div>
+                  <span>API</span>
+                </div>
+              </div>
+
+              <div class="flow-packet" id="flow-packet-2"></div>
+
+              <div class="flow-step-label" id="flow-label-2">Click "Next Step" to begin</div>
+
+              <div class="flow-controls">
+                <button class="btn flow-next-btn">Next Step</button>
+                <button class="btn flow-reset-btn">Restart</button>
+                <span class="flow-progress"></span>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Posting the letters</h2>
+            <p>The drain loop is short, and every line of it is a decision someone had to make.</p>
+            <div class="translation-block animate-in">
+              <div class="translation-code">
+                <span class="translation-label">CODE</span>
+                <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> all = <span class="code-keyword">await</span> db.<span class="code-function">getAllFromIndex</span>(STORE, <span class="code-string">'queuedAt'</span>)</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">for</span> (<span class="code-keyword">const</span> entry <span class="code-keyword">of</span> all) {</span>
+<span class="code-line">  <span class="code-keyword">let</span> attempts = <span class="code-number">0</span></span>
+<span class="code-line">  <span class="code-keyword">let</span> success = <span class="code-keyword">false</span></span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">while</span> (attempts &lt; <span class="code-number">5</span> &amp;&amp; !success) {</span>
+<span class="code-line">    <span class="code-keyword">try</span> {</span>
+<span class="code-line">      <span class="code-keyword">await</span> <span class="code-function">sendRequest</span>(entry)</span>
+<span class="code-line">      <span class="code-keyword">await</span> db.<span class="code-function">delete</span>(STORE, entry.id)</span>
+<span class="code-line">      success = <span class="code-keyword">true</span></span>
+<span class="code-line">      <span class="code-function">emitChange</span>()</span>
+<span class="code-line">    } <span class="code-keyword">catch</span> {</span>
+<span class="code-line">      attempts++</span>
+<span class="code-line">      <span class="code-keyword">if</span> (attempts &lt; <span class="code-number">5</span>) {</span>
+<span class="code-line">        <span class="code-keyword">await</span> <span class="code-function">delay</span>(Math.<span class="code-function">pow</span>(<span class="code-number">2</span>, attempts) * <span class="code-number">1000</span>)</span>
+<span class="code-line">      }</span>
+<span class="code-line">    }</span>
+<span class="code-line">  }</span>
+                </code></pre>
+              </div>
+              <div class="translation-english">
+                <span class="translation-label">PLAIN ENGLISH</span>
+                <div class="translation-lines">
+                  <p class="tl">Fetch every letter, sorted by when it was written. Order matters: replaying "set 3" before "start workout" would fail for a reason that has nothing to do with the network.</p>
+                  <p class="tl">Take them one at a time.</p>
+                  <p class="tl">Each letter gets its own attempt counter — one stubborn letter must not consume the allowance of the rest.</p>
+                  <p class="tl">Try up to five times, stopping early the moment it works.</p>
+                  <p class="tl">Send it.</p>
+                  <p class="tl"><strong>Delete only after the send succeeded.</strong> Reverse those two lines and a crash between them destroys the set forever.</p>
+                  <p class="tl">Tell the rest of the app the bag changed, so the little "3 pending" badge updates.</p>
+                  <p class="tl">If it failed, count the attempt…</p>
+                  <p class="tl">…and wait before trying again: 2 seconds, then 4, 8, 16. This is <span class="term" data-definition="Exponential backoff means waiting twice as long after each failed attempt. It exists so that when a server is struggling, thousands of clients do not all retry at the same instant and finish it off. Doubling spreads them out automatically.">exponential backoff</span> — hammering a struggling server is how you keep it down.</p>
+                  <p class="tl">After five failures it gives up, warns in the console and fires an event the UI can show. Loudly, not silently.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Why you do not end up with four identical workouts</h2>
+            <p>Retrying a create is dangerous — that was the module 3 quiz. The fix is the field you saw in module 1: <code>idempotencyKey</code>. The phone generates one random ticket number per workout and reuses it on every retry.</p>
+            <div class="translation-block animate-in">
+              <div class="translation-code">
+                <span class="translation-label">CODE</span>
+                <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> existing = <span class="code-keyword">await this</span>.prisma.session.<span class="code-function">findUnique</span>({</span>
+<span class="code-line">  where: { idempotencyKey: dto.idempotencyKey },</span>
+<span class="code-line">});</span>
+<span class="code-line"><span class="code-keyword">if</span> (existing) {</span>
+<span class="code-line">  <span class="code-keyword">if</span> (existing.userId !== userId) {</span>
+<span class="code-line">    <span class="code-keyword">throw new</span> <span class="code-function">ConflictException</span>(<span class="code-string">'Idempotency key already in use'</span>);</span>
+<span class="code-line">  }</span>
+<span class="code-line">  <span class="code-keyword">return</span> existing;</span>
+<span class="code-line">}</span>
+                </code></pre>
+              </div>
+              <div class="translation-english">
+                <span class="translation-label">PLAIN ENGLISH</span>
+                <div class="translation-lines">
+                  <p class="tl">Before creating anything: has a workout with this ticket number already been created?</p>
+                  <p class="tl">If yes…</p>
+                  <p class="tl">…and it belongs to somebody else, refuse. Someone is guessing ticket numbers, or a bug is recycling them.</p>
+                  <p class="tl">Otherwise hand back the workout that already exists. The retry gets the same answer as the original, and no second workout appears.</p>
+                  <p class="tl">This is what <span class="term" data-definition="Idempotent means doing something twice has the same effect as doing it once. Pressing a lift button is idempotent; adding sugar to coffee is not. Making creates idempotent is how apps survive retries, flaky networks and impatient double-taps.">idempotent</span> means, and it is the single most useful word to know when asking an AI assistant to make writes safe to retry.</p>
+                </div>
+              </div>
+            </div>
+            <div class="callout callout-info">
+              <div class="callout-icon">🔒</div>
+              <div class="callout-content">
+                <strong class="callout-title">One more subtlety</strong>
+                <p>Logging out <em>empties</em> the bag. A queued letter carries no identity of its own, so replaying it after a different account signs in would file your sets against their workout. Two lines of code, one very strange bug prevented.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Think it through</h2>
+            <div class="quiz-container" id="quiz-module5">
+              <div class="quiz-question-block"
+                   data-correct="opt-no"
+                   data-explanation-right="Right. A 400 is the server answering — the request is genuinely wrong and will be just as wrong tomorrow. Queueing it hides a real error and guarantees an infinite retry of something that can never succeed."
+                   data-explanation-wrong="Ask whether the server replied. If it did, the network is fine — the request itself is the problem, and no amount of retrying will change that.">
+                <h3 class="quiz-question">A save fails with "400 Bad Request — reps must be at least 1". Should it go in the queue?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-yes" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Yes — any failed save should be retried</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-no" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>No — the server answered, so this is a real error the user must see</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-maybe" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Yes, but only once</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <div class="quiz-question-block"
+                   data-correct="opt-delete-after"
+                   data-explanation-right="Exactly. Delete-then-send means a crash or a failure in between loses the data with no record that it ever existed. Send-then-delete can at worst send twice — and the ticket number already makes that harmless."
+                   data-explanation-wrong="Think about what happens if the app is killed between the two lines. One order loses data permanently; the other risks a duplicate that the idempotency key absorbs.">
+                <h3 class="quiz-question">Your AI assistant rewrites the drain to delete each entry first, then send it — "cleaner", it says. What breaks?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-nothing" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Nothing — the order does not matter</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-delete-after" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>A failure after the delete loses the set forever, with no trace</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-slow" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>It gets slower, because deletes are expensive</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <div class="quiz-question-block"
+                   data-correct="opt-key"
+                   data-explanation-right="Correct. Same ticket number on every attempt means the server can recognise the repeat and hand back the original instead of creating a twin."
+                   data-explanation-wrong="A retry is indistinguishable from a genuine second request unless the request carries something that identifies it as the same one. What in the create form does that?">
+                <h3 class="quiz-question">You are adding a new "log a run" feature and want it to survive bad signal. What must the create request carry?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-time" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>A timestamp, so the server can spot near-duplicates</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-key" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>A ticket number generated once on the phone and reused on every retry</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-flag" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>A flag saying "this is a retry"</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <button class="quiz-check-btn" onclick="checkQuiz('quiz-module5')">Check Answers</button>
+              <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module5')">Try Again</button>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </section>
