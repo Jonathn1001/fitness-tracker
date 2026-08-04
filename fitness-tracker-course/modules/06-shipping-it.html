@@ -1,0 +1,253 @@
+    <section class="module" id="module-6" style="background: var(--color-bg)">
+      <div class="module-content">
+        <header class="module-header animate-in">
+          <span class="module-number">06</span>
+          <h1 class="module-title">Shipping It</h1>
+          <p class="module-subtitle">Security lanes, boarding gates, and the meter that runs every time the AI is asked a question.</p>
+        </header>
+
+        <div class="module-body">
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Nobody boards without clearing security</h2>
+            <p>At an airport you do not walk from the kerb onto the plane. You pass through lanes — document check, bag scan, body scan — and the gate only opens for people who cleared all of them.</p>
+            <p>Code takes the same route. Every proposed change runs through four lanes — collectively called <span class="term" data-definition="CI stands for Continuous Integration: every proposed change is automatically built and tested on a clean machine before anyone can merge it. It is the difference between finding a break in ten minutes and finding it in production.">CI</span> — before it is allowed anywhere near real users.</p>
+            <div class="pattern-cards stagger-children">
+              <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-1)">
+                <div class="pattern-icon" style="background: var(--color-actor-1)">📏</div>
+                <h4 class="pattern-title"><span class="term" data-definition="Linting is an automatic check for style and sloppiness — unused variables, inconsistent formatting, patterns known to cause bugs. It does not run your code, it just reads it. Cheapest lane in the pipeline.">Lint</span></h4>
+                <p class="pattern-desc">House style and obvious mistakes. Cheap, fast, catches the silly things.</p>
+              </div>
+              <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+                <div class="pattern-icon" style="background: var(--color-actor-2)">🔎</div>
+                <h4 class="pattern-title">Typecheck</h4>
+                <p class="pattern-desc">"You promised this was a number and handed it a date." Catches whole categories of bug without running anything.</p>
+              </div>
+              <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-3)">
+                <div class="pattern-icon" style="background: var(--color-actor-3)">🧪</div>
+                <h4 class="pattern-title">Tests</h4>
+                <p class="pattern-desc">Unit tests check the rules in isolation; <span class="term" data-definition="E2E stands for end-to-end. An E2E test starts the whole system — real API, real database — and drives it the way a user would, checking that the pieces work together rather than just alone.">e2e</span> tests start a real database and drive the API like a user.</p>
+              </div>
+              <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-5)">
+                <div class="pattern-icon" style="background: var(--color-actor-5)">🛡️</div>
+                <h4 class="pattern-title">Audit</h4>
+                <p class="pattern-desc">Checks the borrowed code this app depends on for publicly known security holes.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">The gate is wired to the lanes</h2>
+            <p>The deploy instructions are a file in the repository. These four lines are the ones that matter.</p>
+            <div class="translation-block animate-in">
+              <div class="translation-code">
+                <span class="translation-label">CODE</span>
+                <pre><code>
+<span class="code-line"><span class="code-property">deploy-frontend</span>:</span>
+<span class="code-line">  <span class="code-property">name</span>: Deploy frontend to GitHub Pages</span>
+<span class="code-line">  <span class="code-property">needs</span>: checks</span>
+<span class="code-line">  <span class="code-property">runs-on</span>: ubuntu-latest</span>
+                </code></pre>
+              </div>
+              <div class="translation-english">
+                <span class="translation-label">PLAIN ENGLISH</span>
+                <div class="translation-lines">
+                  <p class="tl">"Here is the job that publishes the app people actually use."</p>
+                  <p class="tl">A human-readable name, so a failure in the dashboard says something useful.</p>
+                  <p class="tl"><strong>The whole point.</strong> This job does not start until every security lane has passed. One word — <code>needs</code> — is the difference between "we check our code" and "we cannot ship unchecked code".</p>
+                  <p class="tl">And it runs on a fresh rented Linux machine, not on anybody's laptop. Same result every time, no "works on my machine".</p>
+                </div>
+              </div>
+            </div>
+            <div class="callout callout-warning">
+              <div class="callout-icon">⚠️</div>
+              <div class="callout-content">
+                <strong class="callout-title">A gate has consequences</strong>
+                <p>Wire the gate to the lanes and a lane failing for an unrelated reason — a newly published security advisory in borrowed code, say — will stop your deploy dead. That is the system working, not breaking. The fix is to clear the lane, not to unbolt the gate.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Four landlords</h2>
+            <p>Nothing here runs on a computer anyone owns. Four different companies host four different pieces, and each can fail on its own without taking the others down.</p>
+            <p>Click each one to see what it does — and what it looks like when that one is the thing that broke.</p>
+            <div class="arch-diagram">
+              <div class="arch-zone arch-zone-browser">
+                <h4 class="arch-zone-label">On the user's device</h4>
+                <div class="arch-component" data-desc="GitHub Pages — just files: HTML, styling, code. Free to host because nothing runs on their server; it all runs on your phone. If this is broken: nothing loads at all, not even a blank shell.">
+                  <div class="arch-icon">📄</div>
+                  <span>GitHub Pages</span>
+                </div>
+              </div>
+              <div class="arch-zone arch-zone-external">
+                <h4 class="arch-zone-label">Rented machines</h4>
+                <div class="arch-component" data-desc="Render — a machine that stays awake holding the rules and the secrets. It redeploys itself whenever the master branch changes. If this is broken: the app loads and looks fine, but every screen shows an error instead of data.">
+                  <div class="arch-icon">⚙️</div>
+                  <span>Render (API)</span>
+                </div>
+                <div class="arch-component" data-desc="Neon — managed Postgres, kept separate on purpose: servers get replaced, restarted and rebuilt, and your workouts must survive all three. If this is broken: the API is up and answering, but every request that touches data fails.">
+                  <div class="arch-icon">🗄️</div>
+                  <span>Neon (database)</span>
+                </div>
+                <div class="arch-component" data-desc="Google Gemini — the only piece that costs money per use. If this is broken or rate-limited: everything works except the AI review, which is exactly why it is called separately and stored once generated.">
+                  <div class="arch-icon">🤖</div>
+                  <span>Gemini</span>
+                </div>
+              </div>
+              <div class="arch-description" id="arch-desc">Click any piece to learn what it does</div>
+            </div>
+            <p><strong>Debugging by elimination:</strong> "the app is down" is four separate investigations, and the symptom tells you which one. Knowing the landlords turns a panic into a checklist.</p>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">The meter that runs</h2>
+            <p>Every AI review costs real money and takes real seconds. So the limit is checked <em>before</em> the call, not after.</p>
+            <div class="translation-block animate-in">
+              <div class="translation-code">
+                <span class="translation-label">CODE</span>
+                <pre><code>
+<span class="code-line"><span class="code-comment">// Check the daily limit before calling Gemini. The unique constraint below</span></span>
+<span class="code-line"><span class="code-comment">// is still the source of truth — it catches concurrent requests — but</span></span>
+<span class="code-line"><span class="code-comment">// reaching it meant paying for and waiting on a generation we then threw</span></span>
+<span class="code-line"><span class="code-comment">// away.</span></span>
+<span class="code-line"><span class="code-keyword">const</span> alreadyGenerated = <span class="code-keyword">await this</span>.prisma.aiFeedback.<span class="code-function">findFirst</span>({</span>
+<span class="code-line">  where: { userId, generatedAt: { gte: todayStart, lte: todayEnd } },</span>
+<span class="code-line">  select: { id: <span class="code-keyword">true</span> },</span>
+<span class="code-line">});</span>
+<span class="code-line"><span class="code-keyword">if</span> (alreadyGenerated) <span class="code-keyword">throw this</span>.<span class="code-function">rateLimited</span>(todayEnd);</span>
+                </code></pre>
+              </div>
+              <div class="translation-english">
+                <span class="translation-label">PLAIN ENGLISH</span>
+                <div class="translation-lines">
+                  <p class="tl">The comment explains a <em>change</em>, and why it was worth making: the check used to happen after the expensive part.</p>
+                  <p class="tl">It also admits what this check is not — the database rule underneath is still the real referee, because two requests arriving at the same instant can both pass this check.</p>
+                  <p class="tl">So this is an optimisation, not a guarantee. Saying that out loud stops a future reader from deleting the database rule as "redundant".</p>
+                  <p class="tl">Look for any review this person already generated today…</p>
+                  <p class="tl">…and only fetch the id. Pulling the whole review, text and all, to answer a yes/no question is wasted work on every single request.</p>
+                  <p class="tl">If one exists, stop here — before a single token is spent — and tell the caller when they can try again.</p>
+                </div>
+              </div>
+            </div>
+            <div class="callout callout-accent">
+              <div class="callout-icon">💡</div>
+              <div class="callout-content">
+                <strong class="callout-title">Key insight — cheap checks before expensive work</strong>
+                <p>A database lookup costs a millisecond. An AI call costs money and seconds. Ordering them correctly is free. Any time you ask an AI assistant to add a paid API call, ask it the same question: <em>what is the cheapest thing that could stop this call from being made at all?</em></p>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">What you can now do</h2>
+            <p>Six modules ago, a tap on "save" was magic. Here is what it is instead.</p>
+            <div class="step-cards stagger-children">
+              <div class="step-card animate-in">
+                <div class="step-num">1</div>
+                <div class="step-body">
+                  <strong>You can locate a bug</strong>
+                  <p>Wrong number on screen → follow the data backwards. Nothing saves → check whether the server answered at all. Saved but invisible → a stale cache.</p>
+                </div>
+              </div>
+              <div class="step-card animate-in">
+                <div class="step-num">2</div>
+                <div class="step-body">
+                  <strong>You can name what you want</strong>
+                  <p>"Validate at the boundary." "Make this write idempotent." "Invalidate the query after the mutation." "Rotate refresh tokens with reuse detection." Precise words get precise code.</p>
+                </div>
+              </div>
+              <div class="step-card animate-in">
+                <div class="step-num">3</div>
+                <div class="step-body">
+                  <strong>You can catch a bad suggestion</strong>
+                  <p>Secrets in the frontend. A limit enforced only in the UI. Delete-then-send. A security check copy-pasted into three files. You have seen why each one is wrong.</p>
+                </div>
+              </div>
+              <div class="step-card animate-in">
+                <div class="step-num">4</div>
+                <div class="step-body">
+                  <strong>You can ask for the boring parts</strong>
+                  <p>Tests, a typecheck, an audit, a deploy gate. The unglamorous machinery is what lets you change things quickly without fear.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Think it through</h2>
+            <div class="quiz-container" id="quiz-module6">
+              <div class="quiz-question-block"
+                   data-correct="opt-fix"
+                   data-explanation-right="Right. The gate exists precisely for the moments when it is inconvenient. Clear the lane — upgrade the dependency, or record a documented, specific exception — and the gate opens on its own."
+                   data-explanation-wrong="Consider what removing the gate costs you later. It is not one deploy — it is every future deploy, including the one that would have caught something real.">
+                <h3 class="quiz-question">A security advisory in a borrowed library turns the audit lane red. Your deploy is blocked and the fix is a big upgrade. What do you do?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-remove" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Remove the audit lane — it is noise</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-fix" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Upgrade what can be upgraded, and record a narrow documented exception for what cannot</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-lower" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Lower the severity threshold so nothing fails the lane again</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <div class="quiz-question-block"
+                   data-correct="opt-before"
+                   data-explanation-right="Exactly. Check the cheap thing first. A database lookup before a paid call is the difference between a bill you control and one you discover at the end of the month."
+                   data-explanation-wrong="Think about what you are paying for. Once the external call has been made, the money is spent — no matter what you do with the answer afterwards.">
+                <h3 class="quiz-question">You add a feature that calls a paid image API. Where does the "3 per day" limit go?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-after" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>After the call, when saving the result</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-before" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Before the call, with a database rule underneath as the real referee</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-ui" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>In the app, by hiding the button after three</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <div class="quiz-question-block"
+                   data-correct="opt-api"
+                   data-explanation-right="Correct. Pages is serving files fine — that is why the screen appears. The failing part is the program that answers requests, or the database behind it."
+                   data-explanation-wrong="Separate what worked from what did not. The app appeared on screen, so the files were delivered. Something later in the chain is refusing.">
+                <h3 class="quiz-question">Users report: the app loads and looks normal, but every screen shows an error instead of data. Which landlord do you check first?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-pages" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>GitHub Pages — the app is broken</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-api" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Render, then Neon — the files arrived, the answers did not</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-dns" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Nothing to check — users are offline</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <button class="quiz-check-btn" onclick="checkQuiz('quiz-module6')">Check Answers</button>
+              <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module6')">Try Again</button>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </section>

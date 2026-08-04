@@ -1,0 +1,256 @@
+    <section class="module" id="module-3" style="background: var(--color-bg-warm)">
+      <div class="module-content">
+        <header class="module-header animate-in">
+          <span class="module-number">03</span>
+          <h1 class="module-title">How They Talk</h1>
+          <p class="module-subtitle">Two programs, one shared script. Verbs, addresses, forms — and what happens when someone goes off-script.</p>
+        </header>
+
+        <div class="module-body">
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Radio discipline</h2>
+            <p>Pilots and air traffic control do not chat. They use fixed phrases in a fixed order, because a misheard sentence at 300 knots is fatal. Every message names who it is for, what is wanted, and nothing else.</p>
+            <p>Two programs talking over the internet follow the same discipline. Every request carries a <strong>verb</strong> (what kind of thing this is) and an <strong>address</strong> (what it concerns).</p>
+            <div class="badge-list">
+              <div class="badge-item">
+                <code class="badge-code">GET /sessions</code>
+                <span class="badge-desc">"Send me the list of workouts." Asks for data, changes nothing.</span>
+              </div>
+              <div class="badge-item">
+                <code class="badge-code">POST /sessions</code>
+                <span class="badge-desc">"Create a new workout." The verb for <em>make something that did not exist</em>.</span>
+              </div>
+              <div class="badge-item">
+                <code class="badge-code">PATCH /sessions/:id</code>
+                <span class="badge-desc">"Change part of this one workout." The <code>:id</code> is a blank filled in with a specific workout.</span>
+              </div>
+              <div class="badge-item">
+                <code class="badge-code">DELETE /sessions/:id/sets/:setId</code>
+                <span class="badge-desc">"Remove that one set from that one workout." Addresses nest, like folders.</span>
+              </div>
+            </div>
+            <p><span class="term" data-definition="GET means read-only: asking for data without changing anything. Because a GET changes nothing, it is safe to repeat, cache, or retry automatically — which is exactly why the offline queue in module 5 only ever bothers with the other verbs.">GET</span> is safe to repeat. <span class="term" data-definition="POST means create: send data to the server so it makes something new. Repeating a POST usually creates a second copy — which is the whole problem the idempotency key in module 5 exists to solve.">POST</span> is not — repeat it and you get two workouts. Half the tricky bugs in this app come from that one asymmetry.</p>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Listen in</h2>
+            <p>You opened one workout to add a set. Here is the conversation that follows, in the order it actually happens.</p>
+            <div class="chat-window" id="chat-module3">
+              <div class="chat-messages">
+                <div class="chat-message" data-msg="0" data-sender="phone" style="display:none">
+                  <div class="chat-avatar" style="background: var(--color-actor-1)">📱</div>
+                  <div class="chat-bubble">
+                    <span class="chat-sender" style="color: var(--color-actor-1)">Phone</span>
+                    <p>PUT /sessions/8f2a…/sets — bench press, set 3, 8 reps, 70kg. Here is my pass.</p>
+                  </div>
+                </div>
+                <div class="chat-message" data-msg="1" data-sender="guard" style="display:none">
+                  <div class="chat-avatar" style="background: var(--color-actor-5)">🛂</div>
+                  <div class="chat-bubble">
+                    <span class="chat-sender" style="color: var(--color-actor-5)">Guard</span>
+                    <p>Pass checks out, and it has not expired. You are user 4b1c…. Go ahead.</p>
+                  </div>
+                </div>
+                <div class="chat-message" data-msg="2" data-sender="dto" style="display:none">
+                  <div class="chat-avatar" style="background: var(--color-actor-3)">📋</div>
+                  <div class="chat-bubble">
+                    <span class="chat-sender" style="color: var(--color-actor-3)">Entry form</span>
+                    <p>Reps is a whole number, at least 1. Weight is a number. Exercise id is a real id. Form accepted.</p>
+                  </div>
+                </div>
+                <div class="chat-message" data-msg="3" data-sender="service" style="display:none">
+                  <div class="chat-avatar" style="background: var(--color-actor-2)">🧠</div>
+                  <div class="chat-bubble">
+                    <span class="chat-sender" style="color: var(--color-actor-2)">Sets service</span>
+                    <p>Hold on — is workout 8f2a… owned by user 4b1c…? Archivist, check for me.</p>
+                  </div>
+                </div>
+                <div class="chat-message" data-msg="4" data-sender="prisma" style="display:none">
+                  <div class="chat-avatar" style="background: var(--color-actor-4)">🗄️</div>
+                  <div class="chat-bubble">
+                    <span class="chat-sender" style="color: var(--color-actor-4)">Prisma</span>
+                    <p>Yes — that workout belongs to 4b1c…. Writing the set now. Done, here is the row.</p>
+                  </div>
+                </div>
+                <div class="chat-message" data-msg="5" data-sender="phone" style="display:none">
+                  <div class="chat-avatar" style="background: var(--color-actor-1)">📱</div>
+                  <div class="chat-bubble">
+                    <span class="chat-sender" style="color: var(--color-actor-1)">Phone</span>
+                    <p>Got it. Throwing away my cached copy of this workout and asking again, so the screen shows the truth rather than my guess.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chat-typing" id="chat-typing" style="display:none">
+                <div class="chat-avatar" id="typing-avatar">?</div>
+                <div class="chat-typing-dots">
+                  <span class="typing-dot"></span>
+                  <span class="typing-dot"></span>
+                  <span class="typing-dot"></span>
+                </div>
+              </div>
+
+              <div class="chat-controls">
+                <button class="btn chat-next-btn">Next Message</button>
+                <button class="btn chat-all-btn">Play All</button>
+                <button class="btn chat-reset-btn">Replay</button>
+                <span class="chat-progress"></span>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">The entry form, in full</h2>
+            <p>That "form accepted" step is a real file. Six lines describe every request allowed to start a workout.</p>
+            <div class="translation-block animate-in">
+              <div class="translation-code">
+                <span class="translation-label">CODE</span>
+                <pre><code>
+<span class="code-line"><span class="code-keyword">export class</span> <span class="code-function">CreateSessionDto</span> {</span>
+<span class="code-line">  <span class="code-keyword">@IsOptional</span>() <span class="code-keyword">@IsUUID</span>() templateDayId?: <span class="code-keyword">string</span>;</span>
+<span class="code-line">  <span class="code-keyword">@IsDateString</span>() date: <span class="code-keyword">string</span>;</span>
+<span class="code-line">  <span class="code-keyword">@IsOptional</span>() <span class="code-keyword">@IsEnum</span>([<span class="code-string">'walk'</span>, <span class="code-string">'run'</span>]) warmupType?: <span class="code-string">'walk'</span> | <span class="code-string">'run'</span>;</span>
+<span class="code-line">  <span class="code-keyword">@IsOptional</span>() <span class="code-keyword">@IsInt</span>() <span class="code-keyword">@Min</span>(<span class="code-number">1</span>) warmupDurationMin?: <span class="code-keyword">number</span>;</span>
+<span class="code-line">  <span class="code-keyword">@IsOptional</span>() <span class="code-keyword">@IsString</span>() notes?: <span class="code-keyword">string</span>;</span>
+<span class="code-line">  <span class="code-keyword">@IsUUID</span>() idempotencyKey: <span class="code-keyword">string</span>;</span>
+<span class="code-line">}</span>
+                </code></pre>
+              </div>
+              <div class="translation-english">
+                <span class="translation-label">PLAIN ENGLISH</span>
+                <div class="translation-lines">
+                  <p class="tl">"Any request that wants to create a workout must look exactly like this."</p>
+                  <p class="tl">You may leave out the planned day — but if you send one, it has to be a real <span class="term" data-definition="A UUID is a long random-looking id such as 8f2a41c0-9d3e-4b77-a1f2-6c0e5b9d2e11. They are used instead of 1, 2, 3 because they are impossible to guess, so nobody can walk through other people&apos;s records by trying the next number.">UUID</span>, not the word "monday".</p>
+                  <p class="tl">The date is required and must be a real date. "yesterday" is rejected here, before it can poison a chart six months from now.</p>
+                  <p class="tl">Warmup type may only be walk or run. This is the list the whole app agrees on — send "treadmill" and the request never reaches the rules.</p>
+                  <p class="tl">If you send a duration it must be a whole number of at least 1. No negative warmups, no half minutes.</p>
+                  <p class="tl">Notes can be any text, or nothing.</p>
+                  <p class="tl">The ticket number is required and must be a UUID. Module 5 is built on this line.</p>
+                </div>
+              </div>
+            </div>
+            <div class="callout callout-accent">
+              <div class="callout-icon">💡</div>
+              <div class="callout-content">
+                <strong class="callout-title">Key insight — validate at the border</strong>
+                <p>Bad data is cheapest to stop at the front door. Once it is in the database, every screen, every chart and every AI review has to cope with it forever. Engineers call this <em>validation at the boundary</em>, and it is one of the highest-value things you can ask an AI assistant to add.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">The phone's memory</h2>
+            <p>The app does not re-ask the server every time you glance at a screen. It keeps answers for a while — and the whole caching policy is three lines.</p>
+            <div class="translation-block animate-in">
+              <div class="translation-code">
+                <span class="translation-label">CODE</span>
+                <pre><code>
+<span class="code-line"><span class="code-keyword">export function</span> <span class="code-function">useSessions</span>(params?: {</span>
+<span class="code-line">  <span class="code-comment">// ...</span></span>
+<span class="code-line">}) {</span>
+<span class="code-line">  <span class="code-keyword">return</span> <span class="code-function">useQuery</span>({</span>
+<span class="code-line">    <span class="code-property">queryKey</span>: [<span class="code-string">'sessions'</span>, params],</span>
+<span class="code-line">    <span class="code-property">queryFn</span>: () =&gt; <span class="code-function">listSessions</span>(params),</span>
+<span class="code-line">  })</span>
+<span class="code-line">}</span>
+                </code></pre>
+              </div>
+              <div class="translation-english">
+                <span class="translation-label">PLAIN ENGLISH</span>
+                <div class="translation-lines">
+                  <p class="tl">"Any screen that needs the workout list should ask me, not the network."</p>
+                  <p class="tl">The filters — date range, page number — come in as options.</p>
+                  <p class="tl">Hand the work to <span class="term" data-definition="React Query is a library that remembers the answers to server requests. Ask for the same thing twice and it hands back the copy it already has, then quietly re-checks in the background. It is what makes an app feel instant when you switch between screens.">React Query</span>, which handles the remembering.</p>
+                  <p class="tl">This is the label on the drawer: "sessions, with these filters". Same label → same cached answer. Different filters → different drawer.</p>
+                  <p class="tl">And this is what to do when the drawer is empty: actually call the server.</p>
+                  <p class="tl">Elsewhere in the app the answer is kept fresh for five minutes before it is re-checked.</p>
+                </div>
+              </div>
+            </div>
+            <div class="callout callout-warning">
+              <div class="callout-icon">⚠️</div>
+              <div class="callout-content">
+                <strong class="callout-title">The bug this creates</strong>
+                <p>"I saved it but it does not show up" is almost always a cache that was not thrown away after a write. If you ever report that symptom to an AI assistant, say <em>"invalidate the query after the mutation"</em> — that is the exact fix, and naming it saves you three wrong guesses.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen animate-in">
+            <h2 class="screen-heading">Think it through</h2>
+            <div class="quiz-container" id="quiz-module3">
+              <div class="quiz-question-block"
+                   data-correct="opt-dto"
+                   data-explanation-right="Correct. The entry form is the single place that decides what a legal request looks like, so both the rules layer and the database downstream can stop double-checking."
+                   data-explanation-wrong="Think about which cast member is responsible for the shape of incoming data — before any rules run and before anything is written down.">
+                <h3 class="quiz-question">You add a "mood" field to a workout, 1 to 5. Where does "must be between 1 and 5" belong?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-page" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>In the page, as a slider that only goes 1–5</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-dto" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>In the DTO on the server, alongside the other field rules</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-nowhere" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Nowhere — the database will complain if it is wrong</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <div class="quiz-question-block"
+                   data-correct="opt-cache"
+                   data-explanation-right="Exactly. The write succeeded; the screen is showing a remembered answer from before it. The fix is to throw that memory away when the write lands."
+                   data-explanation-wrong="Notice the detail: it appears after a refresh. That means the server has the data — so the write worked. Something on the phone is showing you a stale copy.">
+                <h3 class="quiz-question">A user adds a set. The screen does not show it, but after closing and reopening the app it is there. What is wrong?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-db" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>The database write is failing</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-cache" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>The cached copy on the phone was never invalidated</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-auth" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Their pass expired mid-request</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <div class="quiz-question-block"
+                   data-correct="opt-post"
+                   data-explanation-right="Right. GET only reads, so a retry costs nothing. POST creates, so a retry can create a second copy — which is why creates need a ticket number and reads do not."
+                   data-explanation-wrong="Think about what each verb does to the server. One of them leaves the world exactly as it found it, no matter how many times you send it.">
+                <h3 class="quiz-question">Your app auto-retries failed requests. Which verb is dangerous to retry blindly?</h3>
+                <div class="quiz-options">
+                  <button class="quiz-option" data-value="opt-get" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>GET — repeated reads hammer the database</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-post" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>POST — a retry can create a duplicate</span>
+                  </button>
+                  <button class="quiz-option" data-value="opt-none" onclick="selectOption(this)">
+                    <div class="quiz-option-radio"></div>
+                    <span>Neither — retries are always safe</span>
+                  </button>
+                </div>
+                <div class="quiz-feedback"></div>
+              </div>
+
+              <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+              <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </section>
