@@ -18,3 +18,9 @@ skills-lock.json
 .agents
 .claude
 .vercel/
+
+# Playwright MCP session artifacts — page snapshots and console logs
+.playwright-mcp/
+
+# Ad-hoc deploy verification screenshots
+deploy-*.png
